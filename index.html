@@ -133,6 +133,29 @@
       border-radius: 12px;
     }
     .valor { font-weight: 700; font-size: 1.1rem; }
+    .resultado-grid { display: grid; gap: 12px; margin-top: 16px; }
+    .resultado-bloco {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .resultado-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .titulo-bloco { font-weight: 700; letter-spacing: 0.2px; }
+    .sinal { font-weight: 800; padding: 4px 8px; border-radius: 999px; font-size: 0.85rem; }
+    .positivo { background: rgba(245,196,0,0.16); color: var(--accent); }
+    .negativo { background: rgba(255,107,107,0.12); color: #ff8686; }
+    .lista-categorias { display: grid; gap: 8px; }
+    .linha-cat { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--border); }
+    .linha-cat .nome { color: var(--muted); }
+    .linha-cat .valor { font-weight: 700; }
+    .sem-lancamento { color: var(--muted); font-size: 0.95rem; }
     @media (max-width: 600px) {
       body { padding: 12px; }
       .card { padding: 14px; }
@@ -277,18 +300,44 @@
         container.innerHTML = '<p class="status">Nenhum dado encontrado.</p>';
         return;
       }
-      const secao = (titulo, dados) => {
-        const chips = Object.keys(dados).map(k => `<div class="chip">${k}: <strong>R$ ${dados[k].toFixed(2)}</strong></div>`).join('');
-        return `<div><div class="pill">${titulo}</div><div class="chips">${chips || '<span class="status">Sem lançamentos</span>'}</div></div>`;
+      const totalizar = (dados) => Object.values(dados || {}).reduce((acc, v) => acc + Number(v || 0), 0);
+      const renderBloco = (titulo, dados, positivo = false) => {
+        const linhas = Object.keys(dados || {}).map((k) => `
+          <div class="linha-cat">
+            <span class="nome">${k}</span>
+            <span class="valor">R$ ${Number(dados[k] || 0).toFixed(2)}</span>
+          </div>
+        `).join('');
+        const total = totalizar(dados);
+        return `
+          <div class="resultado-bloco">
+            <div class="resultado-header">
+              <span class="titulo-bloco">${titulo}</span>
+              <span class="sinal ${positivo ? 'positivo' : 'negativo'}">${positivo ? '+' : '-'}</span>
+            </div>
+            <div class="lista-categorias">${linhas || `<span class="sem-lancamento">Sem lançamentos</span>`}</div>
+            <div class="linha-cat" style="margin-top:10px;">
+              <span class="nome">Total</span>
+              <span class="valor">R$ ${total.toFixed(2)}</span>
+            </div>
+          </div>
+        `;
       };
+
       container.innerHTML = `
-        ${secao('Receitas', fluxo.receitas)}
-        ${secao('Gastos Fixos', fluxo.fixos)}
-        ${secao('Gastos Variáveis', fluxo.variaveis)}
-        <div class="totais">
-          <div class="card-mini">
-            <div>Resultado do período</div>
-            <div class="valor">R$ ${fluxo.total.toFixed(2)}</div>
+        <div class="resultado-grid">
+          ${renderBloco('Receitas', fluxo.receitas, true)}
+          ${renderBloco('Gastos Variáveis', fluxo.variaveis, false)}
+          ${renderBloco('Gastos Fixos', fluxo.fixos, false)}
+          <div class="resultado-bloco" style="border-color: rgba(245,196,0,0.5); box-shadow: 0 0 0 1px rgba(245,196,0,0.18);">
+            <div class="resultado-header">
+              <span class="titulo-bloco">Resultado do período</span>
+              <span class="sinal ${fluxo.total >= 0 ? 'positivo' : 'negativo'}">${fluxo.total >= 0 ? '+' : '-'}</span>
+            </div>
+            <div class="linha-cat">
+              <span class="nome">Saldo final</span>
+              <span class="valor">R$ ${Number(fluxo.total || 0).toFixed(2)}</span>
+            </div>
           </div>
         </div>
       `;
