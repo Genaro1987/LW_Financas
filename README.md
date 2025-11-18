@@ -1,21 +1,23 @@
-# 💰 LW Finanças - Sistema de Controle Financeiro
+# LW Finanças - Sistema de Controle Financeiro
 
 Sistema completo de gestão financeira desenvolvido em Google Apps Script para controle de receitas e despesas.
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
-### ✨ Principais Recursos
+### Principais Recursos
 
 - **Lançamento de Transações**
   - Registro de receitas, gastos fixos e gastos variáveis
   - Sistema de categorias dinâmico com popup para adicionar novas categorias
+  - Categorias armazenadas em planilha de configuração externa
   - Validação de dados em tempo real
   - Observações opcionais para cada lançamento
 
 - **Gerenciamento de Categorias**
-  - Categorias pré-definidas por tipo de transação
+  - Categorias gerenciadas na planilha de configuração
   - Adicionar novas categorias facilmente através de popup
-  - Categorias específicas para Receitas, Gastos Fixos e Gastos Variáveis
+  - Categorias específicas por tipo (Receitas, Gastos Fixos e Gastos Variáveis)
+  - Inserção automática ao final da lista de cada aba
 
 - **Consulta e Filtros**
   - Visualização de todos os lançamentos
@@ -30,7 +32,7 @@ Sistema completo de gestão financeira desenvolvido em Google Apps Script para c
 - **Formatação Monetária**
   - Todos os valores exibidos em formato brasileiro (R$)
   - Separadores de milhares e decimais corretos
-  - Cores diferenciadas para receitas (verde) e despesas (vermelho/laranja)
+  - Formato: R$ 1.234,56
 
 - **Correção de Timezone**
   - Data e hora registradas corretamente no horário de Brasília
@@ -41,9 +43,35 @@ Sistema completo de gestão financeira desenvolvido em Google Apps Script para c
   - Total de gastos fixos
   - Total de gastos variáveis
   - Saldo atual (receitas - despesas)
-  - Indicadores visuais com cores
 
-## 📋 Como Instalar
+- **Design Responsivo**
+  - Otimizado para uso em smartphone
+  - Interface touch-friendly
+  - Campos e botões dimensionados para mobile
+  - Prevenção de zoom automático em iOS
+
+## Configuração da Planilha
+
+### Planilha de Configurações
+
+ID da Planilha: `1YG6LqlPNiLREQTRNY7h8BLfbiwNXigg0wmnFRhUWX-A`
+
+Esta planilha contém 3 abas para gerenciar as categorias:
+
+1. **Config_receitas** - Categorias de receitas
+2. **Config_fixo** - Categorias de gastos fixos
+3. **Config_variavel** - Categorias de gastos variáveis
+
+Cada aba deve ter as categorias listadas na **primeira coluna**, começando da linha 2 (linha 1 é o cabeçalho).
+
+### Esquema de Cores
+
+O sistema utiliza as cores da empresa:
+- **Preto (#000000)** - Cabeçalhos e elementos principais
+- **Amarelo (#FFD700)** - Destaques e botões principais
+- **Branco (#FFFFFF)** - Fundo e texto secundário
+
+## Como Instalar
 
 ### 1. Criar Planilha Google
 
@@ -75,23 +103,31 @@ Sistema completo de gestão financeira desenvolvido em Google Apps Script para c
 4. Cole todo o conteúdo do arquivo `consulta.html` deste repositório
 
 #### appsscript.json
-1. No editor, clique no ícone de engrenagem ⚙️ (Configurações do projeto)
+1. No editor, clique no ícone de engrenagem (Configurações do projeto)
 2. Marque a opção "Mostrar arquivo de manifesto 'appsscript.json' no editor"
 3. Volte ao editor e clique em `appsscript.json`
 4. Substitua o conteúdo pelo arquivo `appsscript.json` deste repositório
 
-### 4. Salvar e Executar
+### 4. Configurar Planilha de Categorias
+
+**IMPORTANTE:** Antes de usar, você deve:
+
+1. Abrir o arquivo `Code.gs`
+2. Localizar a constante `PLANILHA_CONFIG_ID` (linha 9)
+3. Se necessário, substituir pelo ID da sua planilha de configurações
+
+### 5. Salvar e Executar
 
 1. Clique no ícone de **Salvar** (💾)
 2. Volte para a planilha Google Sheets
 3. Recarregue a página (F5)
 4. Aguarde alguns segundos
-5. Aparecerá um novo menu: **💰 LW Finanças**
+5. Aparecerá um novo menu: **LW Finanças**
 
-### 5. Autorizar Permissões
+### 6. Autorizar Permissões
 
 Na primeira execução:
-1. Clique em **💰 LW Finanças** > **📝 Novo Lançamento**
+1. Clique em **LW Finanças** > **Novo Lançamento**
 2. Será solicitada autorização
 3. Clique em **Continuar**
 4. Selecione sua conta Google
@@ -101,144 +137,141 @@ Na primeira execução:
 
 Pronto! O sistema está instalado e pronto para uso.
 
-## 📱 Como Usar
+## Como Usar
 
 ### Fazer um Novo Lançamento
 
-1. Clique em **💰 LW Finanças** > **📝 Novo Lançamento**
+1. Clique em **LW Finanças** > **Novo Lançamento**
 2. Selecione o **Tipo** (Receita, Gasto Fixo ou Gasto Variável)
 3. Selecione a **Categoria** ou crie uma nova:
-   - Para criar nova categoria, selecione "➕ Adicionar Nova Categoria..."
+   - Para criar nova categoria, selecione "+ Adicionar Nova Categoria..."
    - Digite o nome da categoria no popup
    - Clique em "Adicionar"
+   - A categoria será adicionada na planilha de configuração
 4. Informe o **Valor**
 5. Adicione uma **Observação** (opcional)
-6. Clique em **💾 Salvar Lançamento**
+6. Clique em **Salvar Lançamento**
 
 ### Consultar Lançamentos
 
-1. Clique em **💰 LW Finanças** > **🔍 Consultar Lançamentos**
+1. Clique em **LW Finanças** > **Consultar Lançamentos**
 2. Use o filtro para ver apenas um tipo específico
 3. Visualize o resumo financeiro no topo
 4. Veja todos os lançamentos na tabela
 
 ### Editar um Lançamento
 
-1. Na consulta, clique em **✏️ Editar** no lançamento desejado
+1. Na consulta, clique em **Editar** no lançamento desejado
 2. Altere os campos necessários (tipo, categoria, valor, observação)
-3. Clique em **Salvar Alterações**
+3. Clique em **Salvar**
 
 **Nota:** Só é possível editar lançamentos com até 30 dias.
 
 ### Ver Resumo Financeiro
 
-1. Clique em **💰 LW Finanças** > **📊 Atualizar Resumo**
+1. Clique em **LW Finanças** > **Atualizar Resumo**
 2. Será exibida uma janela com:
    - Total de receitas
    - Total de gastos (fixos e variáveis)
    - Saldo atual
 
-## 🎨 Interface
+## Interface
 
-### Design Moderno
-- Gradientes coloridos
-- Ícones intuitivos
-- Animações suaves
-- Responsivo e adaptável
+### Design Responsivo para Mobile
+- Campos otimizados para touch (mínimo 44px)
+- Fonte mínima de 16px (previne zoom automático no iOS)
+- Botões grandes e fáceis de tocar
+- Layout adaptável para telas pequenas
+- Tabelas com scroll horizontal em mobile
 
-### Código de Cores
-- **Verde** 💚: Receitas
-- **Vermelho** ❌: Gastos Fixos
-- **Laranja** ⚠️: Gastos Variáveis
-- **Azul** 💙: Saldo positivo
-- **Vermelho escuro** ⚠️: Saldo negativo
+### Esquema de Cores
+- **Amarelo** - Receitas e botões principais
+- **Cinza Claro** - Gastos Fixos
+- **Branco** - Gastos Variáveis
+- **Preto** - Cabeçalhos e bordas
+- **Vermelho** - Valores negativos e alertas
 
-## 🔧 Estrutura Técnica
+## Estrutura Técnica
 
-### Planilhas Criadas Automaticamente
+### Planilhas Utilizadas
 
-1. **Lançamentos**: Armazena todos os registros financeiros
+1. **Lançamentos** (criada automaticamente na planilha atual)
    - ID, Data/Hora, Tipo, Categoria, Valor, Observação
 
-2. **Categorias**: Gerencia as categorias disponíveis
-   - Tipo, Categoria
+2. **Config_receitas** (na planilha de configuração externa)
+   - Lista de categorias de receitas
 
-### Categorias Padrão
+3. **Config_fixo** (na planilha de configuração externa)
+   - Lista de categorias de gastos fixos
 
-**Receitas:**
-- Salário
-- Freelance
-- Investimentos
-- Outros
+4. **Config_variavel** (na planilha de configuração externa)
+   - Lista de categorias de gastos variáveis
 
-**Gastos Fixos:**
-- Aluguel
-- Energia
-- Água
-- Internet
-- Telefone
-
-**Gastos Variáveis:**
-- Alimentação
-- Transporte
-- Lazer
-- Saúde
-- Educação
-
-## 🛡️ Segurança e Validações
+## Segurança e Validações
 
 - Validação de campos obrigatórios
 - Proteção contra valores negativos
 - Limite de 30 dias para edição
 - Validação de categorias duplicadas
 - Tratamento de erros com mensagens amigáveis
+- Conexão segura com planilha externa de configurações
 
-## 🌟 Melhorias Implementadas
+## Melhorias Implementadas
 
-### Problemas Corrigidos
-
-1. ✅ **Sistema de Categorias Dinâmico**
+1. **Sistema de Categorias Dinâmico**
    - Popup elegante para adicionar categorias
-   - Não precisa mais de campo separado
+   - Categorias armazenadas em planilha externa
+   - Inserção automática ao final de cada aba
 
-2. ✅ **Correção de Timezone**
-   - Data/hora sempre no horário de Brasília
+2. **Correção de Timezone**
+   - Data/hora sempre no horário de Brasília (America/Sao_Paulo)
    - Formato: dd/MM/yyyy HH:mm:ss
 
-3. ✅ **Edição de Lançamentos**
-   - Editar tipo, categoria e valor
+3. **Edição de Lançamentos**
+   - Editar tipo, categoria, valor e observação
    - Restrição de 30 dias
    - Interface intuitiva
 
-4. ✅ **Formatação Monetária**
+4. **Formatação Monetária**
    - Todos os valores em R$
-   - Formato brasileiro correto
+   - Formato brasileiro correto (R$ 1.234,56)
 
-5. ✅ **Filtros Avançados**
+5. **Filtros Avançados**
    - Por tipo de transação
    - Resumo dinâmico
 
-## 💡 Sugestões de Melhorias Futuras
+6. **Design Responsivo**
+   - Interface otimizada para smartphone
+   - Touch-friendly
+   - Sem zoom automático
+
+7. **Interface Limpa**
+   - Sem ícones emoji
+   - Cores da empresa (preto, amarelo, branco)
+   - Design profissional e moderno
+
+## Sugestões de Melhorias Futuras
 
 - Gráficos de despesas por categoria
 - Exportação para PDF/Excel
 - Metas mensais
 - Alertas de gastos
 - Comparativo mensal
-- Categorias com ícones personalizados
+- Backup automático
 
-## 📞 Suporte
+## Suporte
 
 Para dúvidas ou problemas:
 1. Verifique se todos os arquivos foram copiados corretamente
 2. Certifique-se de ter concedido as permissões necessárias
-3. Recarregue a planilha (F5)
-4. Verifique o log de execução em Apps Script
+3. Verifique se o ID da planilha de configuração está correto
+4. Recarregue a planilha (F5)
+5. Verifique o log de execução em Apps Script
 
-## 📄 Licença
+## Licença
 
 Este projeto é de código aberto e pode ser usado livremente.
 
 ---
 
-**Desenvolvido com ❤️ para facilitar o controle financeiro pessoal**
+**Desenvolvido para facilitar o controle financeiro pessoal**

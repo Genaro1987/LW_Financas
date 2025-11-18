@@ -6,7 +6,10 @@
 // Configurações globais
 const CONFIG = {
   PLANILHA_NOME: 'Lançamentos',
-  PLANILHA_CATEGORIAS: 'Categorias',
+  PLANILHA_CONFIG_ID: '1YG6LqlPNiLREQTRNY7h8BLfbiwNXigg0wmnFRhUWX-A',
+  ABA_RECEITAS: 'Config_receitas',
+  ABA_FIXO: 'Config_fixo',
+  ABA_VARIAVEL: 'Config_variavel',
   TIMEZONE: 'America/Sao_Paulo',
   DIAS_EDICAO: 30
 };
@@ -40,7 +43,7 @@ function obterPlanilhaLancamentos() {
   if (!planilha) {
     planilha = ss.insertSheet(CONFIG.PLANILHA_NOME);
     planilha.appendRow(['ID', 'Data/Hora', 'Tipo', 'Categoria', 'Valor', 'Observação']);
-    planilha.getRange('A1:F1').setFontWeight('bold').setBackground('#4CAF50').setFontColor('#FFFFFF');
+    planilha.getRange('A1:F1').setFontWeight('bold').setBackground('#000000').setFontColor('#FFD700');
     planilha.setFrozenRows(1);
   }
 
@@ -48,39 +51,21 @@ function obterPlanilhaLancamentos() {
 }
 
 /**
- * Obtém ou cria a planilha de categorias
+ * Obtém a aba correta baseada no tipo
  */
-function obterPlanilhaCategorias() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let planilha = ss.getSheetByName(CONFIG.PLANILHA_CATEGORIAS);
+function obterAbaConfig(tipo) {
+  const ss = SpreadsheetApp.openById(CONFIG.PLANILHA_CONFIG_ID);
 
-  if (!planilha) {
-    planilha = ss.insertSheet(CONFIG.PLANILHA_CATEGORIAS);
-    planilha.appendRow(['Tipo', 'Categoria']);
-    planilha.getRange('A1:B1').setFontWeight('bold').setBackground('#2196F3').setFontColor('#FFFFFF');
-
-    // Categorias padrão
-    const categoriasDefault = [
-      ['Receita', 'Salário'],
-      ['Receita', 'Freelance'],
-      ['Receita', 'Investimentos'],
-      ['Receita', 'Outros'],
-      ['Gasto Fixo', 'Aluguel'],
-      ['Gasto Fixo', 'Energia'],
-      ['Gasto Fixo', 'Água'],
-      ['Gasto Fixo', 'Internet'],
-      ['Gasto Fixo', 'Telefone'],
-      ['Gasto Variável', 'Alimentação'],
-      ['Gasto Variável', 'Transporte'],
-      ['Gasto Variável', 'Lazer'],
-      ['Gasto Variável', 'Saúde'],
-      ['Gasto Variável', 'Educação']
-    ];
-
-    categoriasDefault.forEach(cat => planilha.appendRow(cat));
+  let nomeAba = '';
+  if (tipo === 'Receita') {
+    nomeAba = CONFIG.ABA_RECEITAS;
+  } else if (tipo === 'Gasto Fixo') {
+    nomeAba = CONFIG.ABA_FIXO;
+  } else if (tipo === 'Gasto Variável') {
+    nomeAba = CONFIG.ABA_VARIAVEL;
   }
 
-  return planilha;
+  return ss.getSheetByName(nomeAba);
 }
 
 /**
@@ -88,13 +73,20 @@ function obterPlanilhaCategorias() {
  */
 function obterCategorias(tipo) {
   try {
-    const planilha = obterPlanilhaCategorias();
-    const dados = planilha.getDataRange().getValues();
+    const planilha = obterAbaConfig(tipo);
 
+    if (!planilha) {
+      Logger.log('Aba não encontrada para tipo: ' + tipo);
+      return [];
+    }
+
+    const dados = planilha.getDataRange().getValues();
     const categorias = [];
+
+    // Pula o cabeçalho e lê todas as categorias (assumindo que estão na primeira coluna)
     for (let i = 1; i < dados.length; i++) {
-      if (dados[i][0] === tipo) {
-        categorias.push(dados[i][1]);
+      if (dados[i][0] && dados[i][0].toString().trim() !== '') {
+        categorias.push(dados[i][0].toString().trim());
       }
     }
 
@@ -114,18 +106,23 @@ function adicionarCategoria(tipo, nomeCategoria) {
       return { sucesso: false, mensagem: 'Nome da categoria não pode ser vazio!' };
     }
 
-    const planilha = obterPlanilhaCategorias();
+    const planilha = obterAbaConfig(tipo);
+
+    if (!planilha) {
+      return { sucesso: false, mensagem: 'Aba de configuração não encontrada!' };
+    }
+
     const dados = planilha.getDataRange().getValues();
 
-    // Verifica se já existe
+    // Verifica se já existe (na primeira coluna)
     for (let i = 1; i < dados.length; i++) {
-      if (dados[i][0] === tipo && dados[i][1].toLowerCase() === nomeCategoria.toLowerCase()) {
+      if (dados[i][0] && dados[i][0].toString().toLowerCase().trim() === nomeCategoria.toLowerCase().trim()) {
         return { sucesso: false, mensagem: 'Categoria já existe!' };
       }
     }
 
-    // Adiciona nova categoria
-    planilha.appendRow([tipo, nomeCategoria]);
+    // Adiciona nova categoria ao final da lista (primeira coluna)
+    planilha.appendRow([nomeCategoria]);
 
     return { sucesso: true, mensagem: 'Categoria adicionada com sucesso!', categoria: nomeCategoria };
   } catch (e) {
@@ -169,11 +166,11 @@ function registrarLancamento(dados) {
     // Aplica cor de fundo baseada no tipo
     let cor = '#FFFFFF';
     if (dados.tipo === 'Receita') {
-      cor = '#E8F5E9'; // Verde claro
+      cor = '#FFFACD'; // Amarelo claro
     } else if (dados.tipo === 'Gasto Fixo') {
-      cor = '#FFEBEE'; // Vermelho claro
+      cor = '#F5F5F5'; // Cinza claro
     } else if (dados.tipo === 'Gasto Variável') {
-      cor = '#FFF3E0'; // Laranja claro
+      cor = '#FFFFFF'; // Branco
     }
     planilha.getRange(novaLinha, 1, 1, 6).setBackground(cor);
 
@@ -302,11 +299,11 @@ function editarLancamento(id, dados) {
     // Atualiza cor de fundo
     let cor = '#FFFFFF';
     if (dados.tipo === 'Receita') {
-      cor = '#E8F5E9';
+      cor = '#FFFACD'; // Amarelo claro
     } else if (dados.tipo === 'Gasto Fixo') {
-      cor = '#FFEBEE';
+      cor = '#F5F5F5'; // Cinza claro
     } else if (dados.tipo === 'Gasto Variável') {
-      cor = '#FFF3E0';
+      cor = '#FFFFFF'; // Branco
     }
     planilha.getRange(linhaLancamento, 1, 1, 6).setBackground(cor);
 
@@ -369,11 +366,11 @@ function obterResumo() {
  */
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
-  ui.createMenu('💰 LW Finanças')
-    .addItem('📝 Novo Lançamento', 'abrirFormulario')
-    .addItem('🔍 Consultar Lançamentos', 'abrirConsulta')
+  ui.createMenu('LW Finanças')
+    .addItem('Novo Lançamento', 'abrirFormulario')
+    .addItem('Consultar Lançamentos', 'abrirConsulta')
     .addSeparator()
-    .addItem('📊 Atualizar Resumo', 'mostrarResumo')
+    .addItem('Atualizar Resumo', 'mostrarResumo')
     .addToUi();
 }
 
@@ -384,7 +381,7 @@ function abrirFormulario() {
   const html = HtmlService.createHtmlOutputFromFile('index')
     .setWidth(500)
     .setHeight(600);
-  SpreadsheetApp.getUi().showModalDialog(html, '💰 LW Finanças - Novo Lançamento');
+  SpreadsheetApp.getUi().showModalDialog(html, 'LW Finanças - Novo Lançamento');
 }
 
 /**
@@ -395,16 +392,16 @@ function mostrarResumo() {
   const ui = SpreadsheetApp.getUi();
 
   const mensagem = `
-📊 RESUMO FINANCEIRO
+RESUMO FINANCEIRO
 
-💚 Receitas: R$ ${resumo.receitas.toFixed(2).replace('.', ',')}
+Receitas: R$ ${resumo.receitas.toFixed(2).replace('.', ',')}
 
-❌ Gastos:
-  • Fixos: R$ ${resumo.gastosFixos.toFixed(2).replace('.', ',')}
-  • Variáveis: R$ ${resumo.gastosVariaveis.toFixed(2).replace('.', ',')}
-  • Total: R$ ${resumo.totalGastos.toFixed(2).replace('.', ',')}
+Gastos:
+  - Fixos: R$ ${resumo.gastosFixos.toFixed(2).replace('.', ',')}
+  - Variáveis: R$ ${resumo.gastosVariaveis.toFixed(2).replace('.', ',')}
+  - Total: R$ ${resumo.totalGastos.toFixed(2).replace('.', ',')}
 
-${resumo.saldo >= 0 ? '✅' : '⚠️'} Saldo: R$ ${resumo.saldo.toFixed(2).replace('.', ',')}
+Saldo: R$ ${resumo.saldo.toFixed(2).replace('.', ',')}
   `;
 
   ui.alert('Resumo Financeiro', mensagem, ui.ButtonSet.OK);

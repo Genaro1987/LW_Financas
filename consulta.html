@@ -3,149 +3,152 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Consultar Lançamentos</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #F5F5F5;
+      padding: 0;
     }
 
     .container {
       max-width: 100%;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background: #FFFFFF;
+      min-height: 100vh;
     }
 
     .header {
-      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-      color: white;
+      background: #000000;
+      color: #FFD700;
       padding: 20px;
-      border-radius: 10px 10px 0 0;
+      border-bottom: 3px solid #FFD700;
     }
 
     .header h1 {
       font-size: 22px;
       margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #FFFFFF;
+      opacity: 0.9;
     }
 
     .resumo {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      padding: 20px;
-      background: #f9f9f9;
-      border-bottom: 2px solid #e0e0e0;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      padding: 15px;
+      background: #000000;
+      border-bottom: 2px solid #FFD700;
     }
 
     .resumo-item {
-      background: white;
-      padding: 15px;
+      background: #FFFFFF;
+      padding: 12px;
       border-radius: 8px;
-      border-left: 4px solid;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    .resumo-item.receitas {
-      border-color: #4CAF50;
-    }
-
-    .resumo-item.gastos-fixos {
-      border-color: #f44336;
-    }
-
-    .resumo-item.gastos-variaveis {
-      border-color: #FF9800;
-    }
-
-    .resumo-item.saldo {
-      border-color: #2196F3;
+      border: 2px solid #FFD700;
     }
 
     .resumo-item.saldo.negativo {
-      border-color: #f44336;
+      border-color: #CC0000;
     }
 
     .resumo-item label {
-      font-size: 12px;
+      font-size: 11px;
       color: #666;
       display: block;
       margin-bottom: 5px;
+      font-weight: 600;
+      text-transform: uppercase;
     }
 
     .resumo-item .valor {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: bold;
-      color: #333;
+      color: #000000;
     }
 
     .filtros {
-      padding: 20px;
-      border-bottom: 1px solid #e0e0e0;
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
+      padding: 15px;
+      border-bottom: 2px solid #F0F0F0;
+      background: #FAFAFA;
     }
 
     .filtros label {
       font-weight: 600;
-      color: #333;
+      color: #000000;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 14px;
     }
 
     .filtros select {
-      padding: 8px 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 14px;
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
-      transition: all 0.3s;
+      background: #FFFFFF;
+      color: #000000;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
     }
 
     .filtros select:focus {
       outline: none;
-      border-color: #2196F3;
+      border-color: #FFD700;
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
     }
 
     .tabela-container {
-      padding: 20px;
+      padding: 15px;
       overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 600px;
     }
 
     thead {
-      background: #f5f5f5;
+      background: #000000;
     }
 
     th {
-      padding: 12px;
+      padding: 12px 8px;
       text-align: left;
-      font-weight: 600;
-      color: #333;
-      border-bottom: 2px solid #e0e0e0;
-      font-size: 13px;
+      font-weight: 700;
+      color: #FFD700;
+      font-size: 12px;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     td {
-      padding: 12px;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 12px 8px;
+      border-bottom: 1px solid #F0F0F0;
       font-size: 14px;
+      color: #000000;
     }
 
     tr:hover {
-      background-color: #f9f9f9;
+      background-color: #FFFACD;
     }
 
     .badge {
@@ -153,70 +156,78 @@
       padding: 4px 10px;
       border-radius: 12px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
+      border: 1px solid;
     }
 
     .badge-receita {
-      background-color: #d4edda;
-      color: #155724;
+      background-color: #FFFACD;
+      color: #000000;
+      border-color: #FFD700;
     }
 
     .badge-gasto-fixo {
-      background-color: #f8d7da;
-      color: #721c24;
+      background-color: #F5F5F5;
+      color: #000000;
+      border-color: #666666;
     }
 
     .badge-gasto-variavel {
-      background-color: #fff3cd;
-      color: #856404;
+      background-color: #FFFFFF;
+      color: #000000;
+      border-color: #CCCCCC;
     }
 
     .valor-positivo {
-      color: #4CAF50;
-      font-weight: 600;
+      color: #000000;
+      font-weight: 700;
     }
 
     .valor-negativo {
-      color: #f44336;
-      font-weight: 600;
+      color: #CC0000;
+      font-weight: 700;
     }
 
     .btn-editar {
-      padding: 6px 12px;
-      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-      color: white;
-      border: none;
-      border-radius: 5px;
+      padding: 8px 14px;
+      background: #FFD700;
+      color: #000000;
+      border: 2px solid #000000;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       transition: all 0.3s;
+      white-space: nowrap;
+      touch-action: manipulation;
     }
 
-    .btn-editar:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 3px 10px rgba(33, 150, 243, 0.4);
+    .btn-editar:active {
+      transform: scale(0.95);
+      background: #FFC700;
     }
 
     .btn-editar:disabled {
-      background: #ccc;
+      background: #CCCCCC;
+      border-color: #999999;
+      color: #666666;
       cursor: not-allowed;
       transform: none;
     }
 
     .loading {
       text-align: center;
-      padding: 40px;
+      padding: 60px 20px;
       color: #666;
     }
 
     .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #2196F3;
+      border: 4px solid #F3F3F3;
+      border-top: 4px solid #FFD700;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
       margin: 0 auto 15px;
     }
@@ -232,9 +243,10 @@
       color: #999;
     }
 
-    .empty-state .icon {
-      font-size: 64px;
-      margin-bottom: 15px;
+    .empty-state h3 {
+      color: #000000;
+      margin: 15px 0 10px;
+      font-size: 20px;
     }
 
     /* Modal de edição */
@@ -246,18 +258,19 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.8);
       animation: fadeIn 0.3s;
+      overflow-y: auto;
     }
 
     .modal-content {
-      background-color: white;
-      margin: 10% auto;
+      background-color: #FFFFFF;
+      margin: 5% auto;
       padding: 0;
-      border-radius: 15px;
+      border: 3px solid #FFD700;
+      border-radius: 12px;
       width: 90%;
       max-width: 500px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       animation: slideUp 0.3s;
     }
 
@@ -278,118 +291,186 @@
     }
 
     .modal-header {
-      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-      color: white;
+      background: #000000;
+      color: #FFD700;
       padding: 20px;
-      border-radius: 15px 15px 0 0;
+      border-radius: 9px 9px 0 0;
     }
 
     .modal-header h2 {
-      font-size: 18px;
+      font-size: 20px;
       margin: 0;
+      font-weight: 700;
     }
 
     .modal-body {
-      padding: 25px;
+      padding: 20px;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .form-group label {
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
-      color: #333;
-      font-size: 14px;
+      color: #000000;
+      font-size: 15px;
     }
 
     .form-group input,
     .form-group select,
     .form-group textarea {
       width: 100%;
-      padding: 10px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 14px;
+      padding: 14px;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      font-size: 16px;
       font-family: inherit;
+      background: #FFFFFF;
+      color: #000000;
     }
 
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: #2196F3;
+      border-color: #FFD700;
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
     }
 
-    .modal-footer {
-      padding: 15px 25px;
-      text-align: right;
-      border-top: 1px solid #e0e0e0;
-    }
-
-    .modal-footer button {
-      padding: 10px 20px;
-      margin-left: 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-
-    .btn-cancel {
-      background-color: #f5f5f5;
+    .form-group input:disabled {
+      background: #F5F5F5;
       color: #666;
     }
 
-    .btn-cancel:hover {
-      background-color: #e0e0e0;
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      text-align: right;
+      border-top: 2px solid #F0F0F0;
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.3s;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+
+    .btn-cancel {
+      background-color: #F5F5F5;
+      color: #000000;
+      border: 2px solid #CCCCCC;
+    }
+
+    .btn-cancel:active {
+      background-color: #E0E0E0;
+      transform: scale(0.98);
     }
 
     .btn-save {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      color: white;
+      background: #FFD700;
+      color: #000000;
+      border: 2px solid #000000;
     }
 
-    .btn-save:hover {
-      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+    .btn-save:active {
+      background: #FFC700;
+      transform: scale(0.98);
     }
 
     .info-box {
-      background: #e3f2fd;
-      border-left: 4px solid #2196F3;
+      background: #FFFACD;
+      border: 2px solid #FFD700;
       padding: 12px;
-      border-radius: 5px;
+      border-radius: 8px;
       margin-bottom: 15px;
       font-size: 13px;
-      color: #1976D2;
+      color: #000000;
+      font-weight: 500;
+    }
+
+    /* Otimizações para mobile */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .header p {
+        font-size: 13px;
+      }
+
+      .resumo {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .resumo-item .valor {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 10px 6px;
+        font-size: 13px;
+      }
+
+      .btn-editar {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+      }
+    }
+
+    /* Previne zoom em inputs no iOS */
+    @supports (-webkit-touch-callout: none) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🔍 Consultar Lançamentos</h1>
+      <h1>Consultar Lançamentos</h1>
       <p>Visualize e edite seus lançamentos financeiros</p>
     </div>
 
     <div class="resumo" id="resumo">
-      <div class="resumo-item receitas">
-        <label>💚 Receitas</label>
+      <div class="resumo-item">
+        <label>Receitas</label>
         <div class="valor" id="totalReceitas">R$ 0,00</div>
       </div>
-      <div class="resumo-item gastos-fixos">
-        <label>❌ Gastos Fixos</label>
+      <div class="resumo-item">
+        <label>Gastos Fixos</label>
         <div class="valor" id="totalGastosFixos">R$ 0,00</div>
       </div>
-      <div class="resumo-item gastos-variaveis">
-        <label>⚠️ Gastos Variáveis</label>
+      <div class="resumo-item">
+        <label>Gastos Variáveis</label>
         <div class="valor" id="totalGastosVariaveis">R$ 0,00</div>
       </div>
       <div class="resumo-item saldo" id="saldoItem">
-        <label>💰 Saldo</label>
+        <label>Saldo</label>
         <div class="valor" id="saldoValor">R$ 0,00</div>
       </div>
     </div>
@@ -398,9 +479,9 @@
       <label for="filtroTipo">Filtrar por tipo:</label>
       <select id="filtroTipo">
         <option value="Todos">Todos</option>
-        <option value="Receita">💚 Receita</option>
-        <option value="Gasto Fixo">❌ Gasto Fixo</option>
-        <option value="Gasto Variável">⚠️ Gasto Variável</option>
+        <option value="Receita">Receita</option>
+        <option value="Gasto Fixo">Gasto Fixo</option>
+        <option value="Gasto Variável">Gasto Variável</option>
       </select>
     </div>
 
@@ -428,7 +509,6 @@
         </table>
 
         <div id="emptyState" class="empty-state" style="display: none;">
-          <div class="icon">📭</div>
           <h3>Nenhum lançamento encontrado</h3>
           <p>Comece adicionando seu primeiro lançamento financeiro!</p>
         </div>
@@ -440,11 +520,11 @@
   <div id="modalEdicao" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>✏️ Editar Lançamento</h2>
+        <h2>Editar Lançamento</h2>
       </div>
       <div class="modal-body">
         <div class="info-box">
-          ℹ️ Você pode editar lançamentos feitos há até 30 dias.
+          Você pode editar lançamentos feitos há até 30 dias.
         </div>
 
         <form id="formEdicao">
@@ -458,9 +538,9 @@
           <div class="form-group">
             <label>Tipo</label>
             <select id="editTipo" required>
-              <option value="Receita">💚 Receita</option>
-              <option value="Gasto Fixo">❌ Gasto Fixo</option>
-              <option value="Gasto Variável">⚠️ Gasto Variável</option>
+              <option value="Receita">Receita</option>
+              <option value="Gasto Fixo">Gasto Fixo</option>
+              <option value="Gasto Variável">Gasto Variável</option>
             </select>
           </div>
 
@@ -473,7 +553,7 @@
 
           <div class="form-group">
             <label>Valor (R$)</label>
-            <input type="number" id="editValor" step="0.01" min="0.01" required>
+            <input type="number" id="editValor" step="0.01" min="0.01" required inputmode="decimal">
           </div>
 
           <div class="form-group">
@@ -484,7 +564,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="fecharModalEdicao()">Cancelar</button>
-        <button class="btn-save" onclick="salvarEdicao()">Salvar Alterações</button>
+        <button class="btn-save" onclick="salvarEdicao()">Salvar</button>
       </div>
     </div>
   </div>
@@ -519,7 +599,7 @@
         })
         .withFailureHandler(function(erro) {
           console.error('Erro ao carregar lançamentos:', erro);
-          document.getElementById('loading').innerHTML = '<p style="color: #f44336;">Erro ao carregar dados: ' + erro + '</p>';
+          document.getElementById('loading').innerHTML = '<p style="color: #CC0000;">Erro ao carregar dados: ' + erro + '</p>';
         })
         .obterLancamentos(filtro === 'Todos' ? null : filtro);
     }
@@ -551,8 +631,8 @@
 
         // Botão editar
         const btnEditar = lanc.podeEditar
-          ? `<button class="btn-editar" onclick="abrirModalEdicao(${lanc.id})">✏️ Editar</button>`
-          : `<button class="btn-editar" disabled title="Lançamento com mais de 30 dias">🔒 Bloqueado</button>`;
+          ? `<button class="btn-editar" onclick="abrirModalEdicao(${lanc.id})">Editar</button>`
+          : `<button class="btn-editar" disabled title="Lançamento com mais de 30 dias">Bloqueado</button>`;
 
         tr.innerHTML = `
           <td>${lanc.id}</td>
@@ -670,7 +750,7 @@
       google.script.run
         .withSuccessHandler(function(resultado) {
           btnSave.disabled = false;
-          btnSave.textContent = 'Salvar Alterações';
+          btnSave.textContent = 'Salvar';
 
           if (resultado.sucesso) {
             alert(resultado.mensagem);
@@ -682,7 +762,7 @@
         })
         .withFailureHandler(function(erro) {
           btnSave.disabled = false;
-          btnSave.textContent = 'Salvar Alterações';
+          btnSave.textContent = 'Salvar';
           alert('Erro ao salvar: ' + erro);
         })
         .editarLancamento(id, dados);

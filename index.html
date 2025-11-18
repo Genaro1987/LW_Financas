@@ -3,49 +3,52 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>LW Finanças - Novo Lançamento</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #000000;
+      padding: 0;
       min-height: 100vh;
     }
 
     .container {
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
+      background: #FFFFFF;
+      min-height: 100vh;
     }
 
     .header {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      color: white;
-      padding: 25px;
+      background: #000000;
+      color: #FFD700;
+      padding: 20px;
       text-align: center;
+      border-bottom: 3px solid #FFD700;
     }
 
     .header h1 {
       font-size: 24px;
       margin-bottom: 5px;
+      font-weight: 700;
     }
 
     .header p {
       font-size: 14px;
+      color: #FFFFFF;
       opacity: 0.9;
     }
 
     .form-container {
-      padding: 30px;
+      padding: 20px;
     }
 
     .form-group {
@@ -56,12 +59,12 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
-      color: #333;
-      font-size: 14px;
+      color: #000000;
+      font-size: 16px;
     }
 
     .required {
-      color: #f44336;
+      color: #FFD700;
     }
 
     input[type="text"],
@@ -69,12 +72,14 @@
     select,
     textarea {
       width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
+      padding: 16px;
+      border: 2px solid #000000;
       border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.3s;
+      font-size: 16px;
       font-family: inherit;
+      background: #FFFFFF;
+      color: #000000;
+      transition: all 0.3s;
     }
 
     input[type="text"]:focus,
@@ -82,66 +87,74 @@
     select:focus,
     textarea:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #FFD700;
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
     }
 
     select {
       cursor: pointer;
-      background-color: white;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 45px;
     }
 
     textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 100px;
     }
 
     .btn {
       width: 100%;
-      padding: 14px;
+      padding: 18px;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      touch-action: manipulation;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      color: white;
-      margin-bottom: 10px;
+      background: #FFD700;
+      color: #000000;
+      margin-bottom: 12px;
+      border: 2px solid #000000;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    .btn-primary:active {
+      transform: scale(0.98);
+      background: #FFC700;
     }
 
     .btn-secondary {
-      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-      color: white;
+      background: #000000;
+      color: #FFD700;
+      border: 2px solid #FFD700;
     }
 
-    .btn-secondary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+    .btn-secondary:active {
+      transform: scale(0.98);
+      background: #1a1a1a;
     }
 
     .btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      transform: none !important;
     }
 
     .alert {
-      padding: 12px 15px;
+      padding: 16px;
       border-radius: 8px;
       margin-bottom: 20px;
       display: none;
       animation: slideDown 0.3s ease;
+      font-size: 15px;
+      font-weight: 500;
     }
 
     @keyframes slideDown {
@@ -156,36 +169,42 @@
     }
 
     .alert-success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background-color: #FFFACD;
+      color: #000000;
+      border: 2px solid #FFD700;
     }
 
     .alert-error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background-color: #FFE4E4;
+      color: #000000;
+      border: 2px solid #CC0000;
     }
 
     .loading {
       display: none;
       text-align: center;
-      padding: 20px;
+      padding: 40px 20px;
     }
 
     .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #667eea;
+      border: 4px solid #F3F3F3;
+      border-top: 4px solid #FFD700;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
+      margin: 0 auto 15px;
     }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    .loading p {
+      color: #000000;
+      font-size: 16px;
+      font-weight: 600;
     }
 
     /* Modal para nova categoria */
@@ -197,7 +216,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.8);
       animation: fadeIn 0.3s;
     }
 
@@ -207,13 +226,13 @@
     }
 
     .modal-content {
-      background-color: white;
-      margin: 15% auto;
+      background-color: #FFFFFF;
+      margin: 20% auto;
       padding: 0;
-      border-radius: 15px;
+      border: 3px solid #FFD700;
+      border-radius: 12px;
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       animation: slideUp 0.3s;
     }
 
@@ -229,15 +248,16 @@
     }
 
     .modal-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #000000;
+      color: #FFD700;
       padding: 20px;
-      border-radius: 15px 15px 0 0;
+      border-radius: 9px 9px 0 0;
     }
 
     .modal-header h2 {
-      font-size: 18px;
+      font-size: 20px;
       margin: 0;
+      font-weight: 700;
     }
 
     .modal-body {
@@ -245,69 +265,101 @@
     }
 
     .modal-footer {
-      padding: 15px 25px;
+      padding: 20px;
       text-align: right;
-      border-top: 1px solid #e0e0e0;
+      border-top: 2px solid #F0F0F0;
+      display: flex;
+      gap: 10px;
     }
 
     .modal-footer button {
-      padding: 10px 20px;
-      margin-left: 10px;
+      flex: 1;
+      padding: 14px 20px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       transition: all 0.3s;
+      font-size: 16px;
+      touch-action: manipulation;
     }
 
     .btn-cancel {
-      background-color: #f5f5f5;
-      color: #666;
+      background-color: #F5F5F5;
+      color: #000000;
+      border: 2px solid #CCCCCC;
     }
 
-    .btn-cancel:hover {
-      background-color: #e0e0e0;
+    .btn-cancel:active {
+      background-color: #E0E0E0;
+      transform: scale(0.98);
     }
 
     .btn-confirm {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      color: white;
+      background: #FFD700;
+      color: #000000;
+      border: 2px solid #000000;
     }
 
-    .btn-confirm:hover {
-      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+    .btn-confirm:active {
+      background: #FFC700;
+      transform: scale(0.98);
     }
 
-    .tipo-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-left: 8px;
+    .info-text {
+      font-size: 14px;
+      color: #666;
+      margin-top: 10px;
+      padding: 10px;
+      background: #F9F9F9;
+      border-radius: 6px;
     }
 
-    .tipo-receita {
-      background-color: #d4edda;
-      color: #155724;
+    .info-text strong {
+      color: #000000;
     }
 
-    .tipo-gasto-fixo {
-      background-color: #f8d7da;
-      color: #721c24;
+    /* Otimizações para mobile */
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .form-container {
+        padding: 15px;
+      }
+
+      .btn {
+        padding: 16px;
+        font-size: 16px;
+      }
+
+      label {
+        font-size: 15px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        font-size: 16px; /* Previne zoom no iOS */
+        padding: 14px;
+      }
     }
 
-    .tipo-gasto-variavel {
-      background-color: #fff3cd;
-      color: #856404;
+    /* Previne zoom em inputs no iOS */
+    @supports (-webkit-touch-callout: none) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>💰 LW Finanças</h1>
-      <p>Controle suas receitas e despesas</p>
+      <h1>LW Finanças</h1>
+      <p>Controle de Receitas e Despesas</p>
     </div>
 
     <div class="form-container">
@@ -318,9 +370,9 @@
           <label for="tipo">Tipo <span class="required">*</span></label>
           <select id="tipo" required>
             <option value="">Selecione o tipo</option>
-            <option value="Receita">💚 Receita</option>
-            <option value="Gasto Fixo">❌ Gasto Fixo</option>
-            <option value="Gasto Variável">⚠️ Gasto Variável</option>
+            <option value="Receita">Receita</option>
+            <option value="Gasto Fixo">Gasto Fixo</option>
+            <option value="Gasto Variável">Gasto Variável</option>
           </select>
         </div>
 
@@ -333,7 +385,7 @@
 
         <div class="form-group">
           <label for="valor">Valor (R$) <span class="required">*</span></label>
-          <input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required>
+          <input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required inputmode="decimal">
         </div>
 
         <div class="form-group">
@@ -342,17 +394,17 @@
         </div>
 
         <button type="submit" class="btn btn-primary" id="btnSalvar">
-          💾 Salvar Lançamento
+          Salvar Lançamento
         </button>
 
         <button type="button" class="btn btn-secondary" onclick="abrirConsulta()">
-          🔍 Consultar Lançamentos
+          Consultar Lançamentos
         </button>
       </form>
 
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <p style="margin-top: 10px; color: #666;">Processando...</p>
+        <p>Processando...</p>
       </div>
     </div>
   </div>
@@ -361,16 +413,16 @@
   <div id="modalNovaCategoria" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>➕ Nova Categoria</h2>
+        <h2>Nova Categoria</h2>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label for="novaCategoriaNome">Nome da Categoria <span class="required">*</span></label>
           <input type="text" id="novaCategoriaNome" placeholder="Ex: Combustível, Vestuário, etc.">
         </div>
-        <p style="font-size: 13px; color: #666; margin-top: 10px;">
-          Tipo: <span id="tipoNovaCategoria" style="font-weight: 600;"></span>
-        </p>
+        <div class="info-text">
+          Tipo: <strong id="tipoNovaCategoria"></strong>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
@@ -412,9 +464,8 @@
           // Adiciona opção "Nova Categoria"
           const optionNova = document.createElement('option');
           optionNova.value = '__NOVA__';
-          optionNova.textContent = '➕ Adicionar Nova Categoria...';
+          optionNova.textContent = '+ Adicionar Nova Categoria...';
           optionNova.style.fontWeight = 'bold';
-          optionNova.style.color = '#4CAF50';
           selectCategoria.appendChild(optionNova);
 
           selectCategoria.disabled = false;
@@ -448,7 +499,6 @@
     // Fecha modal
     function fecharModal() {
       document.getElementById('modalNovaCategoria').style.display = 'none';
-      // Volta para "Selecione a categoria"
       document.getElementById('categoria').value = '';
       aguardandoNovaCategoria = false;
     }
@@ -493,9 +543,8 @@
                 // Adiciona opção "Nova Categoria"
                 const optionNova = document.createElement('option');
                 optionNova.value = '__NOVA__';
-                optionNova.textContent = '➕ Adicionar Nova Categoria...';
+                optionNova.textContent = '+ Adicionar Nova Categoria...';
                 optionNova.style.fontWeight = 'bold';
-                optionNova.style.color = '#4CAF50';
                 selectCategoria.appendChild(optionNova);
 
                 // Seleciona a categoria recém-criada
@@ -518,6 +567,7 @@
     // Permite tecla Enter no modal
     document.getElementById('novaCategoriaNome').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
+        e.preventDefault();
         salvarNovaCategoria();
       }
     });
