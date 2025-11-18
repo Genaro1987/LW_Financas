@@ -86,6 +86,8 @@ O sistema utiliza as cores da empresa:
 
 ### 3. Adicionar os Arquivos
 
+**O sistema possui apenas 2 arquivos principais:**
+
 #### Code.gs
 1. Renomeie o arquivo padrão `Code.gs`
 2. Cole todo o conteúdo do arquivo `Code.gs` deste repositório
@@ -95,12 +97,6 @@ O sistema utiliza as cores da empresa:
 2. Selecione **HTML**
 3. Nomeie como `index`
 4. Cole todo o conteúdo do arquivo `index.html` deste repositório
-
-#### consulta.html
-1. Clique em **+** ao lado de "Arquivos"
-2. Selecione **HTML**
-3. Nomeie como `consulta`
-4. Cole todo o conteúdo do arquivo `consulta.html` deste repositório
 
 #### appsscript.json
 1. No editor, clique no ícone de engrenagem (Configurações do projeto)
@@ -118,11 +114,12 @@ O sistema utiliza as cores da empresa:
 
 ### 5. Salvar e Executar
 
-1. Clique no ícone de **Salvar** (💾)
+1. Clique no ícone de **Salvar**
 2. Volte para a planilha Google Sheets
 3. Recarregue a página (F5)
 4. Aguarde alguns segundos
 5. Aparecerá um novo menu: **LW Finanças**
+6. Clique em **LW Finanças** > **Abrir Sistema**
 
 ### 6. Autorizar Permissões
 
@@ -139,9 +136,15 @@ Pronto! O sistema está instalado e pronto para uso.
 
 ## Como Usar
 
+### Abrir o Sistema
+
+1. Clique em **LW Finanças** > **Abrir Sistema**
+2. Uma janela será aberta com o sistema completo
+3. O sistema possui 2 abas: **Lançamento** e **Consulta**
+
 ### Fazer um Novo Lançamento
 
-1. Clique em **LW Finanças** > **Novo Lançamento**
+1. Na aba **Lançamento**:
 2. Selecione o **Tipo** (Receita, Gasto Fixo ou Gasto Variável)
 3. Selecione a **Categoria** ou crie uma nova:
    - Para criar nova categoria, selecione "+ Adicionar Nova Categoria..."
@@ -149,14 +152,13 @@ Pronto! O sistema está instalado e pronto para uso.
    - Clique em "Adicionar"
    - A categoria será adicionada na planilha de configuração
 4. Informe a **Data** (preenchida automaticamente com a data atual, pode ser alterada)
-5. Informe a **Hora** (preenchida automaticamente com a hora atual, pode ser alterada)
-6. Informe o **Valor**
-7. Adicione uma **Observação** (opcional)
-8. Clique em **Salvar Lançamento**
+5. Informe o **Valor**
+6. Adicione uma **Observação** (opcional)
+7. Clique em **Salvar Lançamento**
 
 ### Consultar Lançamentos
 
-1. Clique em **LW Finanças** > **Consultar Lançamentos**
+1. Clique na aba **Consulta**
 2. Use o filtro para ver apenas um tipo específico
 3. Visualize o resumo financeiro no topo
 4. Veja todos os lançamentos na tabela
@@ -220,34 +222,48 @@ Pronto! O sistema está instalado e pronto para uso.
 
 ## Melhorias Implementadas
 
-1. **Sistema de Categorias Dinâmico**
+1. **Sistema Unificado com Abas**
+   - Apenas 2 arquivos: Code.gs e index.html
+   - Interface com abas: Lançamento e Consulta
+   - Troca rápida sem recarregar
+   - Janela otimizada: 900x700px
+
+2. **Sistema de Categorias Dinâmico**
    - Popup elegante para adicionar categorias
    - Categorias armazenadas em planilha externa
    - Inserção automática ao final de cada aba
+   - Cache inteligente para performance
 
-2. **Correção de Timezone**
-   - Data/hora sempre no horário de Brasília (America/Sao_Paulo)
-   - Formato: dd/MM/yyyy HH:mm:ss
+3. **Otimização de Performance**
+   - Cache de categorias por tipo
+   - Carregamento instantâneo ao trocar tipo
+   - Cache limpo apenas ao adicionar nova categoria
+   - Consulta carregada sob demanda
 
-3. **Edição de Lançamentos**
+4. **Correção de Timezone**
+   - Data sempre no horário de Brasília (America/Sao_Paulo)
+   - Formato: dd/MM/yyyy
+   - Campo de hora removido (simplificação)
+
+5. **Edição de Lançamentos**
    - Editar tipo, categoria, valor e observação
    - Restrição de 30 dias
-   - Interface intuitiva
+   - Interface intuitiva com cache
 
-4. **Formatação Monetária**
+6. **Formatação Monetária**
    - Todos os valores em R$
    - Formato brasileiro correto (R$ 1.234,56)
 
-5. **Filtros Avançados**
+7. **Filtros Avançados**
    - Por tipo de transação
    - Resumo dinâmico
 
-6. **Design Responsivo**
+8. **Design Responsivo**
    - Interface otimizada para smartphone
    - Touch-friendly
    - Sem zoom automático
 
-7. **Interface Limpa**
+9. **Interface Limpa**
    - Sem ícones emoji
    - Cores da empresa (preto, amarelo, branco)
    - Design profissional e moderno
