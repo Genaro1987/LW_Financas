@@ -59,8 +59,8 @@ ID da Planilha: `1YG6LqlPNiLREQTRNY7h8BLfbiwNXigg0wmnFRhUWX-A`
 Esta planilha contém 3 abas para gerenciar as categorias:
 
 1. **Config_receitas** - Categorias de receitas
-2. **Config_fixo** - Categorias de gastos fixos
-3. **Config_variavel** - Categorias de gastos variáveis
+2. **Config_fixos** - Categorias de gastos fixos
+3. **Config_variaveis** - Categorias de gastos variáveis
 
 Cada aba deve ter as categorias listadas na **primeira coluna**, começando da linha 2 (linha 1 é o cabeçalho).
 
@@ -148,9 +148,11 @@ Pronto! O sistema está instalado e pronto para uso.
    - Digite o nome da categoria no popup
    - Clique em "Adicionar"
    - A categoria será adicionada na planilha de configuração
-4. Informe o **Valor**
-5. Adicione uma **Observação** (opcional)
-6. Clique em **Salvar Lançamento**
+4. Informe a **Data** (preenchida automaticamente com a data atual, pode ser alterada)
+5. Informe a **Hora** (preenchida automaticamente com a hora atual, pode ser alterada)
+6. Informe o **Valor**
+7. Adicione uma **Observação** (opcional)
+8. Clique em **Salvar Lançamento**
 
 ### Consultar Lançamentos
 
@@ -201,10 +203,10 @@ Pronto! O sistema está instalado e pronto para uso.
 2. **Config_receitas** (na planilha de configuração externa)
    - Lista de categorias de receitas
 
-3. **Config_fixo** (na planilha de configuração externa)
+3. **Config_fixos** (na planilha de configuração externa)
    - Lista de categorias de gastos fixos
 
-4. **Config_variavel** (na planilha de configuração externa)
+4. **Config_variaveis** (na planilha de configuração externa)
    - Lista de categorias de gastos variáveis
 
 ## Segurança e Validações
