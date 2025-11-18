@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>Consultar Lançamentos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 100%;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .resumo-item {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .resumo-item.receitas {
+      border-color: #4CAF50;
+    }
+
+    .resumo-item.gastos-fixos {
+      border-color: #f44336;
+    }
+
+    .resumo-item.gastos-variaveis {
+      border-color: #FF9800;
+    }
+
+    .resumo-item.saldo {
+      border-color: #2196F3;
+    }
+
+    .resumo-item.saldo.negativo {
+      border-color: #f44336;
+    }
+
+    .resumo-item label {
+      font-size: 12px;
+      color: #666;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .resumo-item .valor {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .filtros {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filtros label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .filtros select {
+      padding: 8px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .filtros select:focus {
+      outline: none;
+      border-color: #2196F3;
+    }
+
+    .tabela-container {
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f5f5f5;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-receita {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .badge-gasto-fixo {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .badge-gasto-variavel {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .valor-positivo {
+      color: #4CAF50;
+      font-weight: 600;
+    }
+
+    .valor-negativo {
+      color: #f44336;
+      font-weight: 600;
+    }
+
+    .btn-editar {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-editar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 10px rgba(33, 150, 243, 0.4);
+    }
+
+    .btn-editar:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #2196F3;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state .icon {
+      font-size: 64px;
+      margin-bottom: 15px;
+    }
+
+    /* Modal de edição */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 0;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px 15px 0 0;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #2196F3;
+    }
+
+    .modal-footer {
+      padding: 15px 25px;
+      text-align: right;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .modal-footer button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-cancel {
+      background-color: #f5f5f5;
+      color: #666;
+    }
+
+    .btn-cancel:hover {
+      background-color: #e0e0e0;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+    }
+
+    .btn-save:hover {
+      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196F3;
+      padding: 12px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #1976D2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔍 Consultar Lançamentos</h1>
+      <p>Visualize e edite seus lançamentos financeiros</p>
+    </div>
+
+    <div class="resumo" id="resumo">
+      <div class="resumo-item receitas">
+        <label>💚 Receitas</label>
+        <div class="valor" id="totalReceitas">R$ 0,00</div>
+      </div>
+      <div class="resumo-item gastos-fixos">
+        <label>❌ Gastos Fixos</label>
+        <div class="valor" id="totalGastosFixos">R$ 0,00</div>
+      </div>
+      <div class="resumo-item gastos-variaveis">
+        <label>⚠️ Gastos Variáveis</label>
+        <div class="valor" id="totalGastosVariaveis">R$ 0,00</div>
+      </div>
+      <div class="resumo-item saldo" id="saldoItem">
+        <label>💰 Saldo</label>
+        <div class="valor" id="saldoValor">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <label for="filtroTipo">Filtrar por tipo:</label>
+      <select id="filtroTipo">
+        <option value="Todos">Todos</option>
+        <option value="Receita">💚 Receita</option>
+        <option value="Gasto Fixo">❌ Gasto Fixo</option>
+        <option value="Gasto Variável">⚠️ Gasto Variável</option>
+      </select>
+    </div>
+
+    <div class="tabela-container">
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Carregando lançamentos...</p>
+      </div>
+
+      <div id="conteudo" style="display: none;">
+        <table id="tabelaLancamentos">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Data/Hora</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Valor</th>
+              <th>Observação</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpoTabela">
+          </tbody>
+        </table>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="icon">📭</div>
+          <h3>Nenhum lançamento encontrado</h3>
+          <p>Comece adicionando seu primeiro lançamento financeiro!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de edição -->
+  <div id="modalEdicao" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✏️ Editar Lançamento</h2>
+      </div>
+      <div class="modal-body">
+        <div class="info-box">
+          ℹ️ Você pode editar lançamentos feitos há até 30 dias.
+        </div>
+
+        <form id="formEdicao">
+          <input type="hidden" id="editId">
+
+          <div class="form-group">
+            <label>Data/Hora do Lançamento</label>
+            <input type="text" id="editDataHora" disabled>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="editTipo" required>
+              <option value="Receita">💚 Receita</option>
+              <option value="Gasto Fixo">❌ Gasto Fixo</option>
+              <option value="Gasto Variável">⚠️ Gasto Variável</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="editCategoria" required>
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="editValor" step="0.01" min="0.01" required>
+          </div>
+
+          <div class="form-group">
+            <label>Observação</label>
+            <textarea id="editObservacao" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="fecharModalEdicao()">Cancelar</button>
+        <button class="btn-save" onclick="salvarEdicao()">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lancamentos = [];
+    let lancamentoEmEdicao = null;
+
+    // Carrega dados ao abrir
+    window.addEventListener('load', function() {
+      carregarDados();
+    });
+
+    // Filtro por tipo
+    document.getElementById('filtroTipo').addEventListener('change', function() {
+      carregarDados();
+    });
+
+    function carregarDados() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('conteudo').style.display = 'none';
+
+      const filtro = document.getElementById('filtroTipo').value;
+
+      google.script.run
+        .withSuccessHandler(function(dados) {
+          lancamentos = dados;
+          renderizarTabela();
+          carregarResumo();
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('conteudo').style.display = 'block';
+        })
+        .withFailureHandler(function(erro) {
+          console.error('Erro ao carregar lançamentos:', erro);
+          document.getElementById('loading').innerHTML = '<p style="color: #f44336;">Erro ao carregar dados: ' + erro + '</p>';
+        })
+        .obterLancamentos(filtro === 'Todos' ? null : filtro);
+    }
+
+    function renderizarTabela() {
+      const tbody = document.getElementById('corpoTabela');
+      tbody.innerHTML = '';
+
+      if (lancamentos.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('tabelaLancamentos').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('tabelaLancamentos').style.display = 'table';
+
+      lancamentos.forEach(function(lanc) {
+        const tr = document.createElement('tr');
+
+        // Badge do tipo
+        let badgeClass = 'badge-receita';
+        if (lanc.tipo === 'Gasto Fixo') badgeClass = 'badge-gasto-fixo';
+        if (lanc.tipo === 'Gasto Variável') badgeClass = 'badge-gasto-variavel';
+
+        // Formata valor
+        const valorFormatado = formatarMoeda(lanc.valor);
+        const valorClass = lanc.tipo === 'Receita' ? 'valor-positivo' : 'valor-negativo';
+
+        // Botão editar
+        const btnEditar = lanc.podeEditar
+          ? `<button class="btn-editar" onclick="abrirModalEdicao(${lanc.id})">✏️ Editar</button>`
+          : `<button class="btn-editar" disabled title="Lançamento com mais de 30 dias">🔒 Bloqueado</button>`;
+
+        tr.innerHTML = `
+          <td>${lanc.id}</td>
+          <td>${lanc.dataHora}</td>
+          <td><span class="badge ${badgeClass}">${lanc.tipo}</span></td>
+          <td>${lanc.categoria}</td>
+          <td class="${valorClass}">${valorFormatado}</td>
+          <td>${lanc.observacao || '-'}</td>
+          <td>${btnEditar}</td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function carregarResumo() {
+      google.script.run
+        .withSuccessHandler(function(resumo) {
+          document.getElementById('totalReceitas').textContent = formatarMoeda(resumo.receitas);
+          document.getElementById('totalGastosFixos').textContent = formatarMoeda(resumo.gastosFixos);
+          document.getElementById('totalGastosVariaveis').textContent = formatarMoeda(resumo.gastosVariaveis);
+          document.getElementById('saldoValor').textContent = formatarMoeda(resumo.saldo);
+
+          const saldoItem = document.getElementById('saldoItem');
+          if (resumo.saldo < 0) {
+            saldoItem.classList.add('negativo');
+          } else {
+            saldoItem.classList.remove('negativo');
+          }
+        })
+        .obterResumo();
+    }
+
+    function formatarMoeda(valor) {
+      return 'R$ ' + parseFloat(valor).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function abrirModalEdicao(id) {
+      lancamentoEmEdicao = lancamentos.find(l => l.id === id);
+
+      if (!lancamentoEmEdicao) return;
+
+      document.getElementById('editId').value = lancamentoEmEdicao.id;
+      document.getElementById('editDataHora').value = lancamentoEmEdicao.dataHora;
+      document.getElementById('editTipo').value = lancamentoEmEdicao.tipo;
+      document.getElementById('editValor').value = lancamentoEmEdicao.valor;
+      document.getElementById('editObservacao').value = lancamentoEmEdicao.observacao;
+
+      // Carrega categorias para o tipo
+      carregarCategoriasEdicao(lancamentoEmEdicao.tipo, lancamentoEmEdicao.categoria);
+
+      document.getElementById('modalEdicao').style.display = 'block';
+    }
+
+    function fecharModalEdicao() {
+      document.getElementById('modalEdicao').style.display = 'none';
+      lancamentoEmEdicao = null;
+    }
+
+    // Quando muda o tipo na edição, recarrega categorias
+    document.getElementById('editTipo').addEventListener('change', function() {
+      carregarCategoriasEdicao(this.value, null);
+    });
+
+    function carregarCategoriasEdicao(tipo, categoriaSelecionada) {
+      const select = document.getElementById('editCategoria');
+      select.innerHTML = '<option value="">Carregando...</option>';
+      select.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(categorias) {
+          select.innerHTML = '<option value="">Selecione a categoria</option>';
+
+          categorias.forEach(function(cat) {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            if (cat === categoriaSelecionada) {
+              option.selected = true;
+            }
+            select.appendChild(option);
+          });
+
+          select.disabled = false;
+        })
+        .withFailureHandler(function(erro) {
+          select.innerHTML = '<option value="">Erro ao carregar</option>';
+        })
+        .obterCategorias(tipo);
+    }
+
+    function salvarEdicao() {
+      const id = parseInt(document.getElementById('editId').value);
+      const tipo = document.getElementById('editTipo').value;
+      const categoria = document.getElementById('editCategoria').value;
+      const valor = document.getElementById('editValor').value;
+      const observacao = document.getElementById('editObservacao').value;
+
+      if (!tipo || !categoria || !valor) {
+        alert('Por favor, preencha todos os campos obrigatórios!');
+        return;
+      }
+
+      const dados = {
+        tipo: tipo,
+        categoria: categoria,
+        valor: valor,
+        observacao: observacao
+      };
+
+      const btnSave = event.target;
+      btnSave.disabled = true;
+      btnSave.textContent = 'Salvando...';
+
+      google.script.run
+        .withSuccessHandler(function(resultado) {
+          btnSave.disabled = false;
+          btnSave.textContent = 'Salvar Alterações';
+
+          if (resultado.sucesso) {
+            alert(resultado.mensagem);
+            fecharModalEdicao();
+            carregarDados();
+          } else {
+            alert(resultado.mensagem);
+          }
+        })
+        .withFailureHandler(function(erro) {
+          btnSave.disabled = false;
+          btnSave.textContent = 'Salvar Alterações';
+          alert('Erro ao salvar: ' + erro);
+        })
+        .editarLancamento(id, dados);
+    }
+
+    // Fecha modal ao clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('modalEdicao');
+      if (event.target === modal) {
+        fecharModalEdicao();
+      }
+    };
+  </script>
+</body>
+</html>

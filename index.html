@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>LW Finanças - Novo Lançamento</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .form-container {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .required {
+      color: #f44336;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    select {
+      cursor: pointer;
+      background-color: white;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .alert {
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Modal para nova categoria */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 0;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px 15px 0 0;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    .modal-footer {
+      padding: 15px 25px;
+      text-align: right;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .modal-footer button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-cancel {
+      background-color: #f5f5f5;
+      color: #666;
+    }
+
+    .btn-cancel:hover {
+      background-color: #e0e0e0;
+    }
+
+    .btn-confirm {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+    }
+
+    .tipo-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .tipo-receita {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .tipo-gasto-fixo {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .tipo-gasto-variavel {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💰 LW Finanças</h1>
+      <p>Controle suas receitas e despesas</p>
+    </div>
+
+    <div class="form-container">
+      <div id="alert" class="alert"></div>
+
+      <form id="formLancamento" onsubmit="return false;">
+        <div class="form-group">
+          <label for="tipo">Tipo <span class="required">*</span></label>
+          <select id="tipo" required>
+            <option value="">Selecione o tipo</option>
+            <option value="Receita">💚 Receita</option>
+            <option value="Gasto Fixo">❌ Gasto Fixo</option>
+            <option value="Gasto Variável">⚠️ Gasto Variável</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Categoria <span class="required">*</span></label>
+          <select id="categoria" required disabled>
+            <option value="">Primeiro selecione o tipo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="valor">Valor (R$) <span class="required">*</span></label>
+          <input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="observacao">Observação</label>
+          <textarea id="observacao" placeholder="Adicione uma observação (opcional)"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnSalvar">
+          💾 Salvar Lançamento
+        </button>
+
+        <button type="button" class="btn btn-secondary" onclick="abrirConsulta()">
+          🔍 Consultar Lançamentos
+        </button>
+      </form>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px; color: #666;">Processando...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para adicionar nova categoria -->
+  <div id="modalNovaCategoria" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>➕ Nova Categoria</h2>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="novaCategoriaNome">Nome da Categoria <span class="required">*</span></label>
+          <input type="text" id="novaCategoriaNome" placeholder="Ex: Combustível, Vestuário, etc.">
+        </div>
+        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+          Tipo: <span id="tipoNovaCategoria" style="font-weight: 600;"></span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-confirm" onclick="salvarNovaCategoria()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tipoAtual = '';
+    let aguardandoNovaCategoria = false;
+
+    // Carrega categorias quando o tipo muda
+    document.getElementById('tipo').addEventListener('change', function() {
+      const tipo = this.value;
+      tipoAtual = tipo;
+      const selectCategoria = document.getElementById('categoria');
+
+      if (!tipo) {
+        selectCategoria.disabled = true;
+        selectCategoria.innerHTML = '<option value="">Primeiro selecione o tipo</option>';
+        return;
+      }
+
+      selectCategoria.disabled = true;
+      selectCategoria.innerHTML = '<option value="">Carregando...</option>';
+
+      google.script.run
+        .withSuccessHandler(function(categorias) {
+          selectCategoria.innerHTML = '<option value="">Selecione a categoria</option>';
+
+          categorias.forEach(function(cat) {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            selectCategoria.appendChild(option);
+          });
+
+          // Adiciona opção "Nova Categoria"
+          const optionNova = document.createElement('option');
+          optionNova.value = '__NOVA__';
+          optionNova.textContent = '➕ Adicionar Nova Categoria...';
+          optionNova.style.fontWeight = 'bold';
+          optionNova.style.color = '#4CAF50';
+          selectCategoria.appendChild(optionNova);
+
+          selectCategoria.disabled = false;
+        })
+        .withFailureHandler(function(erro) {
+          mostrarAlerta('Erro ao carregar categorias: ' + erro, 'error');
+          selectCategoria.disabled = false;
+          selectCategoria.innerHTML = '<option value="">Erro ao carregar</option>';
+        })
+        .obterCategorias(tipo);
+    });
+
+    // Detecta seleção de "Nova Categoria"
+    document.getElementById('categoria').addEventListener('change', function() {
+      if (this.value === '__NOVA__') {
+        abrirModalNovaCategoria();
+      }
+    });
+
+    // Abre modal para adicionar categoria
+    function abrirModalNovaCategoria() {
+      document.getElementById('tipoNovaCategoria').textContent = tipoAtual;
+      document.getElementById('novaCategoriaNome').value = '';
+      document.getElementById('modalNovaCategoria').style.display = 'block';
+      aguardandoNovaCategoria = true;
+      setTimeout(() => {
+        document.getElementById('novaCategoriaNome').focus();
+      }, 300);
+    }
+
+    // Fecha modal
+    function fecharModal() {
+      document.getElementById('modalNovaCategoria').style.display = 'none';
+      // Volta para "Selecione a categoria"
+      document.getElementById('categoria').value = '';
+      aguardandoNovaCategoria = false;
+    }
+
+    // Salva nova categoria
+    function salvarNovaCategoria() {
+      const nomeCategoria = document.getElementById('novaCategoriaNome').value.trim();
+
+      if (!nomeCategoria) {
+        alert('Por favor, informe o nome da categoria!');
+        return;
+      }
+
+      const btnConfirm = event.target;
+      btnConfirm.disabled = true;
+      btnConfirm.textContent = 'Adicionando...';
+
+      google.script.run
+        .withSuccessHandler(function(resultado) {
+          btnConfirm.disabled = false;
+          btnConfirm.textContent = 'Adicionar';
+
+          if (resultado.sucesso) {
+            fecharModal();
+            mostrarAlerta(resultado.mensagem, 'success');
+
+            // Recarrega as categorias e seleciona a nova
+            const selectCategoria = document.getElementById('categoria');
+            selectCategoria.disabled = true;
+
+            google.script.run
+              .withSuccessHandler(function(categorias) {
+                selectCategoria.innerHTML = '<option value="">Selecione a categoria</option>';
+
+                categorias.forEach(function(cat) {
+                  const option = document.createElement('option');
+                  option.value = cat;
+                  option.textContent = cat;
+                  selectCategoria.appendChild(option);
+                });
+
+                // Adiciona opção "Nova Categoria"
+                const optionNova = document.createElement('option');
+                optionNova.value = '__NOVA__';
+                optionNova.textContent = '➕ Adicionar Nova Categoria...';
+                optionNova.style.fontWeight = 'bold';
+                optionNova.style.color = '#4CAF50';
+                selectCategoria.appendChild(optionNova);
+
+                // Seleciona a categoria recém-criada
+                selectCategoria.value = resultado.categoria;
+                selectCategoria.disabled = false;
+              })
+              .obterCategorias(tipoAtual);
+          } else {
+            alert(resultado.mensagem);
+          }
+        })
+        .withFailureHandler(function(erro) {
+          btnConfirm.disabled = false;
+          btnConfirm.textContent = 'Adicionar';
+          alert('Erro ao adicionar categoria: ' + erro);
+        })
+        .adicionarCategoria(tipoAtual, nomeCategoria);
+    }
+
+    // Permite tecla Enter no modal
+    document.getElementById('novaCategoriaNome').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        salvarNovaCategoria();
+      }
+    });
+
+    // Fecha modal ao clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('modalNovaCategoria');
+      if (event.target === modal) {
+        fecharModal();
+      }
+    };
+
+    // Submissão do formulário
+    document.getElementById('formLancamento').addEventListener('submit', function(e) {
+      e.preventDefault();
+      salvarLancamento();
+    });
+
+    function salvarLancamento() {
+      const tipo = document.getElementById('tipo').value;
+      const categoria = document.getElementById('categoria').value;
+      const valor = document.getElementById('valor').value;
+      const observacao = document.getElementById('observacao').value;
+
+      if (!tipo || !categoria || !valor || categoria === '__NOVA__') {
+        mostrarAlerta('Por favor, preencha todos os campos obrigatórios!', 'error');
+        return;
+      }
+
+      const dados = {
+        tipo: tipo,
+        categoria: categoria,
+        valor: valor,
+        observacao: observacao
+      };
+
+      mostrarLoading(true);
+
+      google.script.run
+        .withSuccessHandler(function(resultado) {
+          mostrarLoading(false);
+
+          if (resultado.sucesso) {
+            mostrarAlerta(resultado.mensagem, 'success');
+            document.getElementById('formLancamento').reset();
+            document.getElementById('categoria').disabled = true;
+            document.getElementById('categoria').innerHTML = '<option value="">Primeiro selecione o tipo</option>';
+          } else {
+            mostrarAlerta(resultado.mensagem, 'error');
+          }
+        })
+        .withFailureHandler(function(erro) {
+          mostrarLoading(false);
+          mostrarAlerta('Erro ao salvar: ' + erro, 'error');
+        })
+        .registrarLancamento(dados);
+    }
+
+    function mostrarAlerta(mensagem, tipo) {
+      const alert = document.getElementById('alert');
+      alert.textContent = mensagem;
+      alert.className = 'alert alert-' + tipo;
+      alert.style.display = 'block';
+
+      setTimeout(function() {
+        alert.style.display = 'none';
+      }, 5000);
+    }
+
+    function mostrarLoading(mostrar) {
+      document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+      document.getElementById('formLancamento').style.display = mostrar ? 'none' : 'block';
+    }
+
+    function abrirConsulta() {
+      google.script.run.abrirConsulta();
+    }
+  </script>
+</body>
+</html>
