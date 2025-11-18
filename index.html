@@ -118,12 +118,22 @@
     }
     .status { margin-top: 12px; font-size: 0.95rem; }
     .status.error { color: var(--error); }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; margin-bottom: 12px; }
     .chip {
       background: rgba(255,255,255,0.06);
       padding: 8px 12px;
       border-radius: 999px;
       font-size: 0.9rem;
+      transition: all 0.2s ease;
+      width: auto;
+    }
+    .chip:hover {
+      background: rgba(245,196,0,0.15);
+      border-color: var(--accent) !important;
+      transform: translateY(-1px);
+    }
+    .chip:active {
+      transform: translateY(0);
     }
     .totais { margin-top: 16px; display: grid; gap: 12px; }
     .totais .card-mini {
@@ -206,6 +216,15 @@
 
     <div id="view-consultar" class="card" style="display:none">
       <h1>Consulta de Período</h1>
+      <label>Filtros rápidos</label>
+      <div class="chips">
+        <button class="chip" style="cursor:pointer;border:1px solid var(--border);" onclick="aplicarFiltro('hoje')">Hoje</button>
+        <button class="chip" style="cursor:pointer;border:1px solid var(--border);" onclick="aplicarFiltro('semana')">Esta semana</button>
+        <button class="chip" style="cursor:pointer;border:1px solid var(--border);" onclick="aplicarFiltro('mes')">Este mês</button>
+        <button class="chip" style="cursor:pointer;border:1px solid var(--border);" onclick="aplicarFiltro('ano')">Este ano</button>
+        <button class="chip" style="cursor:pointer;border:1px solid var(--border);" onclick="aplicarFiltro('ultimos7')">Últimos 7 dias</button>
+        <button class="chip" style="cursor:pointer;border:1px solid var(--border);" onclick="aplicarFiltro('ultimos30')">Últimos 30 dias</button>
+      </div>
       <div class="row two">
         <div>
           <label>Data inicial</label>
@@ -288,6 +307,46 @@
       }).withFailureHandler(mostrarErro).registrarLancamento(lancamento);
     }
 
+    function aplicarFiltro(tipo) {
+      const hoje = new Date();
+      let inicio, fim;
+
+      switch(tipo) {
+        case 'hoje':
+          inicio = fim = hoje;
+          break;
+        case 'semana':
+          const diaSemana = hoje.getDay();
+          inicio = new Date(hoje);
+          inicio.setDate(hoje.getDate() - diaSemana);
+          fim = new Date(inicio);
+          fim.setDate(inicio.getDate() + 6);
+          break;
+        case 'mes':
+          inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+          fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+          break;
+        case 'ano':
+          inicio = new Date(hoje.getFullYear(), 0, 1);
+          fim = new Date(hoje.getFullYear(), 11, 31);
+          break;
+        case 'ultimos7':
+          fim = hoje;
+          inicio = new Date(hoje);
+          inicio.setDate(hoje.getDate() - 6);
+          break;
+        case 'ultimos30':
+          fim = hoje;
+          inicio = new Date(hoje);
+          inicio.setDate(hoje.getDate() - 29);
+          break;
+      }
+
+      document.getElementById('inicio').valueAsDate = inicio;
+      document.getElementById('fim').valueAsDate = fim;
+      consultar();
+    }
+
     function consultar() {
       const inicio = document.getElementById('inicio').value;
       const fim = document.getElementById('fim').value;
@@ -300,47 +359,49 @@
         container.innerHTML = '<p class="status">Nenhum dado encontrado.</p>';
         return;
       }
-      const totalizar = (dados) => Object.values(dados || {}).reduce((acc, v) => acc + Number(v || 0), 0);
+      const totalizar = (dados) => {
+        try {
+          return Object.values(dados || {}).reduce((acc, v) => acc + Number(v || 0), 0);
+        } catch (e) {
+          console.error('Erro ao totalizar:', e);
+          return 0;
+        }
+      };
       const renderBloco = (titulo, dados, positivo = false) => {
-        const linhas = Object.keys(dados || {}).map((k) => `
-          <div class="linha-cat">
-            <span class="nome">${k}</span>
-            <span class="valor">R$ ${Number(dados[k] || 0).toFixed(2)}</span>
-          </div>
-        `).join('');
-        const total = totalizar(dados);
-        return `
-          <div class="resultado-bloco">
-            <div class="resultado-header">
-              <span class="titulo-bloco">${titulo}</span>
-              <span class="sinal ${positivo ? 'positivo' : 'negativo'}">${positivo ? '+' : '-'}</span>
-            </div>
-            <div class="lista-categorias">${linhas || `<span class="sem-lancamento">Sem lançamentos</span>`}</div>
-            <div class="linha-cat" style="margin-top:10px;">
-              <span class="nome">Total</span>
-              <span class="valor">R$ ${total.toFixed(2)}</span>
-            </div>
-          </div>
-        `;
+        try {
+          const dadosObj = dados || {};
+          const keys = Object.keys(dadosObj);
+          const linhas = keys.length > 0 ? keys.map((k) => {
+            const valor = Number(dadosObj[k] || 0).toFixed(2);
+            return '<div class="linha-cat"><span class="nome">' + k + '</span><span class="valor">R$ ' + valor + '</span></div>';
+          }).join('') : '<span class="sem-lancamento">Sem lançamentos</span>';
+
+          const total = totalizar(dadosObj);
+          const sinalClass = positivo ? 'positivo' : 'negativo';
+          const sinalTexto = positivo ? '+' : '-';
+
+          return '<div class="resultado-bloco"><div class="resultado-header"><span class="titulo-bloco">' + titulo + '</span><span class="sinal ' + sinalClass + '">' + sinalTexto + '</span></div><div class="lista-categorias">' + linhas + '</div><div class="linha-cat" style="margin-top:10px;"><span class="nome">Total</span><span class="valor">R$ ' + total.toFixed(2) + '</span></div></div>';
+        } catch (e) {
+          console.error('Erro ao renderizar bloco:', e);
+          return '<div class="resultado-bloco"><p class="status error">Erro ao renderizar ' + titulo + '</p></div>';
+        }
       };
 
-      container.innerHTML = `
-        <div class="resultado-grid">
-          ${renderBloco('Receitas', fluxo.receitas, true)}
-          ${renderBloco('Gastos Variáveis', fluxo.variaveis, false)}
-          ${renderBloco('Gastos Fixos', fluxo.fixos, false)}
-          <div class="resultado-bloco" style="border-color: rgba(245,196,0,0.5); box-shadow: 0 0 0 1px rgba(245,196,0,0.18);">
-            <div class="resultado-header">
-              <span class="titulo-bloco">Resultado do período</span>
-              <span class="sinal ${fluxo.total >= 0 ? 'positivo' : 'negativo'}">${fluxo.total >= 0 ? '+' : '-'}</span>
-            </div>
-            <div class="linha-cat">
-              <span class="nome">Saldo final</span>
-              <span class="valor">R$ ${Number(fluxo.total || 0).toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-      `;
+      try {
+        const totalFormatado = Number(fluxo.total || 0).toFixed(2);
+        const totalSinal = (fluxo.total || 0) >= 0 ? 'positivo' : 'negativo';
+        const totalSinalTexto = (fluxo.total || 0) >= 0 ? '+' : '-';
+
+        container.innerHTML = '<div class="resultado-grid">' +
+          renderBloco('Receitas', fluxo.receitas, true) +
+          renderBloco('Gastos Variáveis', fluxo.variaveis, false) +
+          renderBloco('Gastos Fixos', fluxo.fixos, false) +
+          '<div class="resultado-bloco" style="border-color: rgba(245,196,0,0.5); box-shadow: 0 0 0 1px rgba(245,196,0,0.18);"><div class="resultado-header"><span class="titulo-bloco">Resultado do período</span><span class="sinal ' + totalSinal + '">' + totalSinalTexto + '</span></div><div class="linha-cat"><span class="nome">Saldo final</span><span class="valor">R$ ' + totalFormatado + '</span></div></div>' +
+          '</div>';
+      } catch (e) {
+        console.error('Erro ao renderizar resultado:', e);
+        container.innerHTML = '<p class="status error">Erro ao exibir resultado. Verifique o console.</p>';
+      }
     }
 
     function mostrarStatus(msg, erro = false) {
