@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LW Finanças - Novo Lançamento</title>
+  <title>LW Finanças</title>
   <style>
     * {
       margin: 0;
@@ -21,7 +21,7 @@
     }
 
     .container {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       background: #FFFFFF;
       min-height: 100vh;
@@ -41,14 +41,43 @@
       font-weight: 700;
     }
 
-    .header p {
-      font-size: 14px;
-      color: #FFFFFF;
-      opacity: 0.9;
+    /* Abas */
+    .tabs {
+      display: flex;
+      background: #000000;
+      border-bottom: 2px solid #FFD700;
     }
 
-    .form-container {
+    .tab {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      background: #333333;
+      color: #FFFFFF;
+      cursor: pointer;
+      font-weight: 600;
+      border: none;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      background: #FFD700;
+      color: #000000;
+    }
+
+    .tab:active {
+      transform: scale(0.98);
+    }
+
+    /* Conteúdo das abas */
+    .tab-content {
+      display: none;
       padding: 20px;
+    }
+
+    .tab-content.active {
+      display: block;
     }
 
     .form-group {
@@ -70,7 +99,6 @@
     input[type="text"],
     input[type="number"],
     input[type="date"],
-    input[type="time"],
     select,
     textarea {
       width: 100%;
@@ -87,7 +115,6 @@
     input[type="text"]:focus,
     input[type="number"]:focus,
     input[type="date"]:focus,
-    input[type="time"]:focus,
     select:focus,
     textarea:focus {
       outline: none;
@@ -106,7 +133,7 @@
 
     textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 80px;
     }
 
     .btn {
@@ -133,17 +160,6 @@
     .btn-primary:active {
       transform: scale(0.98);
       background: #FFC700;
-    }
-
-    .btn-secondary {
-      background: #000000;
-      color: #FFD700;
-      border: 2px solid #FFD700;
-    }
-
-    .btn-secondary:active {
-      transform: scale(0.98);
-      background: #1a1a1a;
     }
 
     .btn:disabled {
@@ -323,33 +339,188 @@
       color: #000000;
     }
 
+    /* Resumo */
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .resumo-item {
+      background: #FFFFFF;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #FFD700;
+    }
+
+    .resumo-item.saldo.negativo {
+      border-color: #CC0000;
+    }
+
+    .resumo-item label {
+      font-size: 11px;
+      color: #666;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .resumo-item .valor {
+      font-size: 16px;
+      font-weight: bold;
+      color: #000000;
+    }
+
+    /* Tabela */
+    .tabela-container {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    thead {
+      background: #000000;
+    }
+
+    th {
+      padding: 12px 8px;
+      text-align: left;
+      font-weight: 700;
+      color: #FFD700;
+      font-size: 12px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #F0F0F0;
+      font-size: 14px;
+      color: #000000;
+    }
+
+    tr:hover {
+      background-color: #FFFACD;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+
+    .badge-receita {
+      background-color: #FFFACD;
+      color: #000000;
+      border-color: #FFD700;
+    }
+
+    .badge-gasto-fixo {
+      background-color: #F5F5F5;
+      color: #000000;
+      border-color: #666666;
+    }
+
+    .badge-gasto-variavel {
+      background-color: #FFFFFF;
+      color: #000000;
+      border-color: #CCCCCC;
+    }
+
+    .valor-positivo {
+      color: #000000;
+      font-weight: 700;
+    }
+
+    .valor-negativo {
+      color: #CC0000;
+      font-weight: 700;
+    }
+
+    .btn-editar {
+      padding: 8px 14px;
+      background: #FFD700;
+      color: #000000;
+      border: 2px solid #000000;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.3s;
+      white-space: nowrap;
+      touch-action: manipulation;
+    }
+
+    .btn-editar:active {
+      transform: scale(0.95);
+      background: #FFC700;
+    }
+
+    .btn-editar:disabled {
+      background: #CCCCCC;
+      border-color: #999999;
+      color: #666666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state h3 {
+      color: #000000;
+      margin: 15px 0 10px;
+      font-size: 20px;
+    }
+
+    .info-box {
+      background: #FFFACD;
+      border: 2px solid #FFD700;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #000000;
+      font-weight: 500;
+    }
+
     /* Otimizações para mobile */
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       .header h1 {
-        font-size: 22px;
+        font-size: 20px;
       }
 
-      .form-container {
-        padding: 15px;
+      .tab {
+        font-size: 14px;
+        padding: 12px;
       }
 
-      .btn {
-        padding: 16px;
-        font-size: 16px;
+      .resumo {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      label {
-        font-size: 15px;
+      th, td {
+        padding: 10px 6px;
+        font-size: 13px;
       }
 
-      input[type="text"],
-      input[type="number"],
-      input[type="date"],
-      input[type="time"],
-      select,
-      textarea {
-        font-size: 16px; /* Previne zoom no iOS */
-        padding: 14px;
+      .btn-editar {
+        padding: 6px 10px;
+        font-size: 12px;
       }
     }
 
@@ -365,11 +536,17 @@
   <div class="container">
     <div class="header">
       <h1>LW Finanças</h1>
-      <p>Controle de Receitas e Despesas</p>
     </div>
 
-    <div class="form-container">
-      <div id="alert" class="alert"></div>
+    <!-- Abas -->
+    <div class="tabs">
+      <button class="tab active" onclick="trocarAba('lancamento')">Lançamento</button>
+      <button class="tab" onclick="trocarAba('consulta')">Consulta</button>
+    </div>
+
+    <!-- Aba Lançamento -->
+    <div id="aba-lancamento" class="tab-content active">
+      <div id="alert-lancamento" class="alert"></div>
 
       <form id="formLancamento" onsubmit="return false;">
         <div class="form-group">
@@ -395,11 +572,6 @@
         </div>
 
         <div class="form-group">
-          <label for="hora">Hora <span class="required">*</span></label>
-          <input type="time" id="hora" required>
-        </div>
-
-        <div class="form-group">
           <label for="valor">Valor (R$) <span class="required">*</span></label>
           <input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required inputmode="decimal">
         </div>
@@ -412,20 +584,78 @@
         <button type="submit" class="btn btn-primary" id="btnSalvar">
           Salvar Lançamento
         </button>
-
-        <button type="button" class="btn btn-secondary" onclick="abrirConsulta()">
-          Consultar Lançamentos
-        </button>
       </form>
 
-      <div class="loading" id="loading">
+      <div class="loading" id="loading-lancamento">
         <div class="spinner"></div>
         <p>Processando...</p>
       </div>
     </div>
+
+    <!-- Aba Consulta -->
+    <div id="aba-consulta" class="tab-content">
+      <div class="resumo" id="resumo">
+        <div class="resumo-item">
+          <label>Receitas</label>
+          <div class="valor" id="totalReceitas">R$ 0,00</div>
+        </div>
+        <div class="resumo-item">
+          <label>Gastos Fixos</label>
+          <div class="valor" id="totalGastosFixos">R$ 0,00</div>
+        </div>
+        <div class="resumo-item">
+          <label>Gastos Variáveis</label>
+          <div class="valor" id="totalGastosVariaveis">R$ 0,00</div>
+        </div>
+        <div class="resumo-item saldo" id="saldoItem">
+          <label>Saldo</label>
+          <div class="valor" id="saldoValor">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="filtroTipo">Filtrar por tipo:</label>
+        <select id="filtroTipo">
+          <option value="Todos">Todos</option>
+          <option value="Receita">Receita</option>
+          <option value="Gasto Fixo">Gasto Fixo</option>
+          <option value="Gasto Variável">Gasto Variável</option>
+        </select>
+      </div>
+
+      <div class="tabela-container">
+        <div id="loading-consulta" class="loading">
+          <div class="spinner"></div>
+          <p>Carregando lançamentos...</p>
+        </div>
+
+        <div id="conteudo-consulta" style="display: none;">
+          <table id="tabelaLancamentos">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Obs</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela">
+            </tbody>
+          </table>
+
+          <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>Nenhum lançamento encontrado</h3>
+            <p>Comece adicionando seu primeiro lançamento!</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Modal para adicionar nova categoria -->
+  <!-- Modal para nova categoria -->
   <div id="modalNovaCategoria" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -447,27 +677,96 @@
     </div>
   </div>
 
+  <!-- Modal de edição -->
+  <div id="modalEdicao" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Editar Lançamento</h2>
+      </div>
+      <div class="modal-body">
+        <div class="info-box">
+          Você pode editar lançamentos feitos há até 30 dias.
+        </div>
+
+        <form id="formEdicao">
+          <input type="hidden" id="editId">
+
+          <div class="form-group">
+            <label>Data do Lançamento</label>
+            <input type="text" id="editDataHora" disabled>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="editTipo" required>
+              <option value="Receita">Receita</option>
+              <option value="Gasto Fixo">Gasto Fixo</option>
+              <option value="Gasto Variável">Gasto Variável</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="editCategoria" required>
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="editValor" step="0.01" min="0.01" required inputmode="decimal">
+          </div>
+
+          <div class="form-group">
+            <label>Observação</label>
+            <textarea id="editObservacao" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="fecharModalEdicao()">Cancelar</button>
+        <button class="btn-confirm" onclick="salvarEdicao()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Cache de categorias para otimização
+    const cacheCategorias = {};
     let tipoAtual = '';
-    let aguardandoNovaCategoria = false;
+    let lancamentos = [];
+    let lancamentoEmEdicao = null;
 
-    // Inicializa campos de data e hora com valores atuais
+    // Inicializa ao carregar
     window.addEventListener('load', function() {
-      const agora = new Date();
+      inicializarData();
+    });
 
-      // Formata data no formato YYYY-MM-DD
+    function inicializarData() {
+      const agora = new Date();
       const ano = agora.getFullYear();
       const mes = String(agora.getMonth() + 1).padStart(2, '0');
       const dia = String(agora.getDate()).padStart(2, '0');
       document.getElementById('data').value = `${ano}-${mes}-${dia}`;
+    }
 
-      // Formata hora no formato HH:MM
-      const horas = String(agora.getHours()).padStart(2, '0');
-      const minutos = String(agora.getMinutes()).padStart(2, '0');
-      document.getElementById('hora').value = `${horas}:${minutos}`;
-    });
+    // Troca de aba
+    function trocarAba(aba) {
+      // Atualiza botões
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
 
-    // Carrega categorias quando o tipo muda
+      // Atualiza conteúdo
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('aba-' + aba).classList.add('active');
+
+      // Carrega dados da consulta
+      if (aba === 'consulta') {
+        carregarDados();
+      }
+    }
+
+    // Carrega categorias com cache
     document.getElementById('tipo').addEventListener('change', function() {
       const tipo = this.value;
       tipoAtual = tipo;
@@ -479,36 +778,47 @@
         return;
       }
 
+      // Verifica cache
+      if (cacheCategorias[tipo]) {
+        preencherCategorias(selectCategoria, cacheCategorias[tipo]);
+        return;
+      }
+
       selectCategoria.disabled = true;
       selectCategoria.innerHTML = '<option value="">Carregando...</option>';
 
       google.script.run
         .withSuccessHandler(function(categorias) {
-          selectCategoria.innerHTML = '<option value="">Selecione a categoria</option>';
-
-          categorias.forEach(function(cat) {
-            const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
-            selectCategoria.appendChild(option);
-          });
-
-          // Adiciona opção "Nova Categoria"
-          const optionNova = document.createElement('option');
-          optionNova.value = '__NOVA__';
-          optionNova.textContent = '+ Adicionar Nova Categoria...';
-          optionNova.style.fontWeight = 'bold';
-          selectCategoria.appendChild(optionNova);
-
-          selectCategoria.disabled = false;
+          cacheCategorias[tipo] = categorias; // Salva no cache
+          preencherCategorias(selectCategoria, categorias);
         })
         .withFailureHandler(function(erro) {
-          mostrarAlerta('Erro ao carregar categorias: ' + erro, 'error');
+          mostrarAlerta('Erro ao carregar categorias: ' + erro, 'error', 'lancamento');
           selectCategoria.disabled = false;
           selectCategoria.innerHTML = '<option value="">Erro ao carregar</option>';
         })
         .obterCategorias(tipo);
     });
+
+    function preencherCategorias(select, categorias) {
+      select.innerHTML = '<option value="">Selecione a categoria</option>';
+
+      categorias.forEach(function(cat) {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
+      });
+
+      // Adiciona opção "Nova Categoria"
+      const optionNova = document.createElement('option');
+      optionNova.value = '__NOVA__';
+      optionNova.textContent = '+ Adicionar Nova Categoria...';
+      optionNova.style.fontWeight = 'bold';
+      select.appendChild(optionNova);
+
+      select.disabled = false;
+    }
 
     // Detecta seleção de "Nova Categoria"
     document.getElementById('categoria').addEventListener('change', function() {
@@ -517,25 +827,21 @@
       }
     });
 
-    // Abre modal para adicionar categoria
+    // Modal nova categoria
     function abrirModalNovaCategoria() {
       document.getElementById('tipoNovaCategoria').textContent = tipoAtual;
       document.getElementById('novaCategoriaNome').value = '';
       document.getElementById('modalNovaCategoria').style.display = 'block';
-      aguardandoNovaCategoria = true;
       setTimeout(() => {
         document.getElementById('novaCategoriaNome').focus();
       }, 300);
     }
 
-    // Fecha modal
     function fecharModal() {
       document.getElementById('modalNovaCategoria').style.display = 'none';
       document.getElementById('categoria').value = '';
-      aguardandoNovaCategoria = false;
     }
 
-    // Salva nova categoria
     function salvarNovaCategoria() {
       const nomeCategoria = document.getElementById('novaCategoriaNome').value.trim();
 
@@ -555,33 +861,19 @@
 
           if (resultado.sucesso) {
             fecharModal();
-            mostrarAlerta(resultado.mensagem, 'success');
+            mostrarAlerta(resultado.mensagem, 'success', 'lancamento');
 
-            // Recarrega as categorias e seleciona a nova
+            // Limpa cache e recarrega
+            delete cacheCategorias[tipoAtual];
+
             const selectCategoria = document.getElementById('categoria');
             selectCategoria.disabled = true;
 
             google.script.run
               .withSuccessHandler(function(categorias) {
-                selectCategoria.innerHTML = '<option value="">Selecione a categoria</option>';
-
-                categorias.forEach(function(cat) {
-                  const option = document.createElement('option');
-                  option.value = cat;
-                  option.textContent = cat;
-                  selectCategoria.appendChild(option);
-                });
-
-                // Adiciona opção "Nova Categoria"
-                const optionNova = document.createElement('option');
-                optionNova.value = '__NOVA__';
-                optionNova.textContent = '+ Adicionar Nova Categoria...';
-                optionNova.style.fontWeight = 'bold';
-                selectCategoria.appendChild(optionNova);
-
-                // Seleciona a categoria recém-criada
+                cacheCategorias[tipoAtual] = categorias;
+                preencherCategorias(selectCategoria, categorias);
                 selectCategoria.value = resultado.categoria;
-                selectCategoria.disabled = false;
               })
               .obterCategorias(tipoAtual);
           } else {
@@ -596,7 +888,7 @@
         .adicionarCategoria(tipoAtual, nomeCategoria);
     }
 
-    // Permite tecla Enter no modal
+    // Enter no modal
     document.getElementById('novaCategoriaNome').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -606,9 +898,13 @@
 
     // Fecha modal ao clicar fora
     window.onclick = function(event) {
-      const modal = document.getElementById('modalNovaCategoria');
-      if (event.target === modal) {
+      const modalNova = document.getElementById('modalNovaCategoria');
+      const modalEdit = document.getElementById('modalEdicao');
+      if (event.target === modalNova) {
         fecharModal();
+      }
+      if (event.target === modalEdit) {
+        fecharModalEdicao();
       }
     };
 
@@ -622,12 +918,11 @@
       const tipo = document.getElementById('tipo').value;
       const categoria = document.getElementById('categoria').value;
       const dataInput = document.getElementById('data').value;
-      const horaInput = document.getElementById('hora').value;
       const valor = document.getElementById('valor').value;
       const observacao = document.getElementById('observacao').value;
 
-      if (!tipo || !categoria || !dataInput || !horaInput || !valor || categoria === '__NOVA__') {
-        mostrarAlerta('Por favor, preencha todos os campos obrigatórios!', 'error');
+      if (!tipo || !categoria || !dataInput || !valor || categoria === '__NOVA__') {
+        mostrarAlerta('Por favor, preencha todos os campos obrigatórios!', 'error', 'lancamento');
         return;
       }
 
@@ -635,53 +930,239 @@
       const partesData = dataInput.split('-');
       const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
 
-      // Adiciona segundos à hora (HH:mm -> HH:mm:ss)
-      const horaFormatada = horaInput + ':00';
-
       const dados = {
         tipo: tipo,
         categoria: categoria,
         data: dataFormatada,
-        hora: horaFormatada,
         valor: valor,
         observacao: observacao
       };
 
-      mostrarLoading(true);
+      mostrarLoading(true, 'lancamento');
 
       google.script.run
         .withSuccessHandler(function(resultado) {
-          mostrarLoading(false);
+          mostrarLoading(false, 'lancamento');
 
           if (resultado.sucesso) {
-            mostrarAlerta(resultado.mensagem, 'success');
+            mostrarAlerta(resultado.mensagem, 'success', 'lancamento');
             document.getElementById('formLancamento').reset();
             document.getElementById('categoria').disabled = true;
             document.getElementById('categoria').innerHTML = '<option value="">Primeiro selecione o tipo</option>';
-
-            // Reinicializa data e hora com valores atuais
-            const agora = new Date();
-            const ano = agora.getFullYear();
-            const mes = String(agora.getMonth() + 1).padStart(2, '0');
-            const dia = String(agora.getDate()).padStart(2, '0');
-            document.getElementById('data').value = `${ano}-${mes}-${dia}`;
-
-            const horas = String(agora.getHours()).padStart(2, '0');
-            const minutos = String(agora.getMinutes()).padStart(2, '0');
-            document.getElementById('hora').value = `${horas}:${minutos}`;
+            inicializarData();
           } else {
-            mostrarAlerta(resultado.mensagem, 'error');
+            mostrarAlerta(resultado.mensagem, 'error', 'lancamento');
           }
         })
         .withFailureHandler(function(erro) {
-          mostrarLoading(false);
-          mostrarAlerta('Erro ao salvar: ' + erro, 'error');
+          mostrarLoading(false, 'lancamento');
+          mostrarAlerta('Erro ao salvar: ' + erro, 'error', 'lancamento');
         })
         .registrarLancamento(dados);
     }
 
-    function mostrarAlerta(mensagem, tipo) {
-      const alert = document.getElementById('alert');
+    // Filtro por tipo
+    document.getElementById('filtroTipo').addEventListener('change', function() {
+      carregarDados();
+    });
+
+    function carregarDados() {
+      document.getElementById('loading-consulta').style.display = 'block';
+      document.getElementById('conteudo-consulta').style.display = 'none';
+
+      const filtro = document.getElementById('filtroTipo').value;
+
+      google.script.run
+        .withSuccessHandler(function(dados) {
+          lancamentos = dados;
+          renderizarTabela();
+          carregarResumo();
+          document.getElementById('loading-consulta').style.display = 'none';
+          document.getElementById('conteudo-consulta').style.display = 'block';
+        })
+        .withFailureHandler(function(erro) {
+          console.error('Erro ao carregar lançamentos:', erro);
+          document.getElementById('loading-consulta').innerHTML = '<p style="color: #CC0000;">Erro ao carregar dados: ' + erro + '</p>';
+        })
+        .obterLancamentos(filtro === 'Todos' ? null : filtro);
+    }
+
+    function renderizarTabela() {
+      const tbody = document.getElementById('corpoTabela');
+      tbody.innerHTML = '';
+
+      if (lancamentos.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('tabelaLancamentos').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('tabelaLancamentos').style.display = 'table';
+
+      lancamentos.forEach(function(lanc) {
+        const tr = document.createElement('tr');
+
+        let badgeClass = 'badge-receita';
+        if (lanc.tipo === 'Gasto Fixo') badgeClass = 'badge-gasto-fixo';
+        if (lanc.tipo === 'Gasto Variável') badgeClass = 'badge-gasto-variavel';
+
+        const valorFormatado = formatarMoeda(lanc.valor);
+        const valorClass = lanc.tipo === 'Receita' ? 'valor-positivo' : 'valor-negativo';
+
+        // Pega só a data (sem hora)
+        const data = lanc.dataHora.split(' ')[0];
+
+        const btnEditar = lanc.podeEditar
+          ? `<button class="btn-editar" onclick="abrirModalEdicao(${lanc.id})">Editar</button>`
+          : `<button class="btn-editar" disabled title="Lançamento com mais de 30 dias">Bloqueado</button>`;
+
+        tr.innerHTML = `
+          <td>${lanc.id}</td>
+          <td>${data}</td>
+          <td><span class="badge ${badgeClass}">${lanc.tipo}</span></td>
+          <td>${lanc.categoria}</td>
+          <td class="${valorClass}">${valorFormatado}</td>
+          <td>${lanc.observacao || '-'}</td>
+          <td>${btnEditar}</td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function carregarResumo() {
+      google.script.run
+        .withSuccessHandler(function(resumo) {
+          document.getElementById('totalReceitas').textContent = formatarMoeda(resumo.receitas);
+          document.getElementById('totalGastosFixos').textContent = formatarMoeda(resumo.gastosFixos);
+          document.getElementById('totalGastosVariaveis').textContent = formatarMoeda(resumo.gastosVariaveis);
+          document.getElementById('saldoValor').textContent = formatarMoeda(resumo.saldo);
+
+          const saldoItem = document.getElementById('saldoItem');
+          if (resumo.saldo < 0) {
+            saldoItem.classList.add('negativo');
+          } else {
+            saldoItem.classList.remove('negativo');
+          }
+        })
+        .obterResumo();
+    }
+
+    function formatarMoeda(valor) {
+      return 'R$ ' + parseFloat(valor).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function abrirModalEdicao(id) {
+      lancamentoEmEdicao = lancamentos.find(l => l.id === id);
+
+      if (!lancamentoEmEdicao) return;
+
+      document.getElementById('editId').value = lancamentoEmEdicao.id;
+      document.getElementById('editDataHora').value = lancamentoEmEdicao.dataHora;
+      document.getElementById('editTipo').value = lancamentoEmEdicao.tipo;
+      document.getElementById('editValor').value = lancamentoEmEdicao.valor;
+      document.getElementById('editObservacao').value = lancamentoEmEdicao.observacao;
+
+      carregarCategoriasEdicao(lancamentoEmEdicao.tipo, lancamentoEmEdicao.categoria);
+
+      document.getElementById('modalEdicao').style.display = 'block';
+    }
+
+    function fecharModalEdicao() {
+      document.getElementById('modalEdicao').style.display = 'none';
+      lancamentoEmEdicao = null;
+    }
+
+    document.getElementById('editTipo').addEventListener('change', function() {
+      carregarCategoriasEdicao(this.value, null);
+    });
+
+    function carregarCategoriasEdicao(tipo, categoriaSelecionada) {
+      const select = document.getElementById('editCategoria');
+
+      // Usa cache se disponível
+      if (cacheCategorias[tipo]) {
+        preencherCategoriasEdicao(select, cacheCategorias[tipo], categoriaSelecionada);
+        return;
+      }
+
+      select.innerHTML = '<option value="">Carregando...</option>';
+      select.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(categorias) {
+          cacheCategorias[tipo] = categorias;
+          preencherCategoriasEdicao(select, categorias, categoriaSelecionada);
+        })
+        .withFailureHandler(function(erro) {
+          select.innerHTML = '<option value="">Erro ao carregar</option>';
+        })
+        .obterCategorias(tipo);
+    }
+
+    function preencherCategoriasEdicao(select, categorias, categoriaSelecionada) {
+      select.innerHTML = '<option value="">Selecione a categoria</option>';
+
+      categorias.forEach(function(cat) {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        if (cat === categoriaSelecionada) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+
+      select.disabled = false;
+    }
+
+    function salvarEdicao() {
+      const id = parseInt(document.getElementById('editId').value);
+      const tipo = document.getElementById('editTipo').value;
+      const categoria = document.getElementById('editCategoria').value;
+      const valor = document.getElementById('editValor').value;
+      const observacao = document.getElementById('editObservacao').value;
+
+      if (!tipo || !categoria || !valor) {
+        alert('Por favor, preencha todos os campos obrigatórios!');
+        return;
+      }
+
+      const dados = {
+        tipo: tipo,
+        categoria: categoria,
+        valor: valor,
+        observacao: observacao
+      };
+
+      const btnSave = event.target;
+      btnSave.disabled = true;
+      btnSave.textContent = 'Salvando...';
+
+      google.script.run
+        .withSuccessHandler(function(resultado) {
+          btnSave.disabled = false;
+          btnSave.textContent = 'Salvar';
+
+          if (resultado.sucesso) {
+            alert(resultado.mensagem);
+            fecharModalEdicao();
+            carregarDados();
+          } else {
+            alert(resultado.mensagem);
+          }
+        })
+        .withFailureHandler(function(erro) {
+          btnSave.disabled = false;
+          btnSave.textContent = 'Salvar';
+          alert('Erro ao salvar: ' + erro);
+        })
+        .editarLancamento(id, dados);
+    }
+
+    function mostrarAlerta(mensagem, tipo, aba) {
+      const alert = document.getElementById('alert-' + aba);
       alert.textContent = mensagem;
       alert.className = 'alert alert-' + tipo;
       alert.style.display = 'block';
@@ -691,13 +1172,11 @@
       }, 5000);
     }
 
-    function mostrarLoading(mostrar) {
-      document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
-      document.getElementById('formLancamento').style.display = mostrar ? 'none' : 'block';
-    }
-
-    function abrirConsulta() {
-      google.script.run.abrirConsulta();
+    function mostrarLoading(mostrar, aba) {
+      document.getElementById('loading-' + aba).style.display = mostrar ? 'block' : 'none';
+      if (aba === 'lancamento') {
+        document.getElementById('formLancamento').style.display = mostrar ? 'none' : 'block';
+      }
     }
   </script>
 </body>

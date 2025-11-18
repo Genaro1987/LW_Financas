@@ -23,14 +23,6 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/**
- * Abre a página de consulta
- */
-function abrirConsulta() {
-  const html = HtmlService.createHtmlOutputFromFile('consulta')
-    .setTitle('Consultar Lançamentos');
-  SpreadsheetApp.getUi().showSidebar(html);
-}
 
 /**
  * Obtém ou cria a planilha de lançamentos
@@ -141,15 +133,15 @@ function registrarLancamento(dados) {
     const ultimaLinha = planilha.getLastRow();
     const id = ultimaLinha > 1 ? planilha.getRange(ultimaLinha, 1).getValue() + 1 : 1;
 
-    // Usa a data informada ou a data atual
+    // Usa a data informada (sem hora)
     let dataHoraBrasil;
-    if (dados.data && dados.hora) {
-      // Formata a data e hora informadas
-      dataHoraBrasil = dados.data + ' ' + dados.hora;
+    if (dados.data) {
+      // Adiciona horário padrão 00:00:00
+      dataHoraBrasil = dados.data + ' 00:00:00';
     } else {
       // Obtém data/hora atual no timezone correto
       const agora = new Date();
-      dataHoraBrasil = Utilities.formatDate(agora, CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm:ss');
+      dataHoraBrasil = Utilities.formatDate(agora, CONFIG.TIMEZONE, 'dd/MM/yyyy 00:00:00');
     }
 
     // Converte valor para número
@@ -373,21 +365,20 @@ function obterResumo() {
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu('LW Finanças')
-    .addItem('Novo Lançamento', 'abrirFormulario')
-    .addItem('Consultar Lançamentos', 'abrirConsulta')
+    .addItem('Abrir Sistema', 'abrirSistema')
     .addSeparator()
     .addItem('Atualizar Resumo', 'mostrarResumo')
     .addToUi();
 }
 
 /**
- * Abre formulário de lançamento
+ * Abre o sistema completo
  */
-function abrirFormulario() {
+function abrirSistema() {
   const html = HtmlService.createHtmlOutputFromFile('index')
-    .setWidth(500)
-    .setHeight(600);
-  SpreadsheetApp.getUi().showModalDialog(html, 'LW Finanças - Novo Lançamento');
+    .setWidth(900)
+    .setHeight(700);
+  SpreadsheetApp.getUi().showModalDialog(html, 'LW Finanças');
 }
 
 /**
