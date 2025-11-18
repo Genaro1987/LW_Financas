@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle Financeiro</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-strong: #0e0f12;
+      --card: #111418;
+      --accent: #f5c400;
+      --accent-strong: #f2b500;
+      --text: #f7f7f7;
+      --muted: #c7c9d1;
+      --border: rgba(255, 255, 255, 0.08);
+      --error: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(245, 196, 0, 0.08), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(242, 181, 0, 0.07), transparent 28%),
+        linear-gradient(135deg, var(--bg), var(--bg-strong));
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+    .app {
+      width: 100%;
+      max-width: 960px;
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tab {
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #0a0a0a;
+      box-shadow: 0 8px 24px rgba(245, 196, 0, 0.35);
+    }
+    .card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.35);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+      letter-spacing: 0.2px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+      background: rgba(245,196,0,0.08);
+    }
+    select option {
+      background: #0f1115;
+      color: var(--text);
+    }
+    select option:checked, select option:hover {
+      background: var(--accent);
+      color: #0a0a0a;
+    }
+    textarea { min-height: 80px; }
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #0a0a0a;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(245,196,0,0.28);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    button:active { transform: translateY(1px); box-shadow: 0 6px 18px rgba(245,196,0,0.32); }
+    .row { display: grid; gap: 12px; }
+    .row.two { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .inline { display: flex; gap: 8px; align-items: center; }
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(245,196,0,0.14);
+      color: #0a0a0a;
+      font-size: 0.85rem;
+    }
+    .status { margin-top: 12px; font-size: 0.95rem; }
+    .status.error { color: var(--error); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chip {
+      background: rgba(255,255,255,0.06);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+    .totais { margin-top: 16px; display: grid; gap: 12px; }
+    .totais .card-mini {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .valor { font-weight: 700; font-size: 1.1rem; }
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .card { padding: 14px; }
+      h1 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="tabs">
+      <div id="tab-lancar" class="tab active" onclick="mudarTab('lancar')">Lançamentos</div>
+      <div id="tab-consultar" class="tab" onclick="mudarTab('consultar')">Consulta</div>
+    </div>
+
+    <div id="view-lancar" class="card">
+      <h1>Registrar Lançamento</h1>
+      <div class="row two">
+        <div>
+          <label>Data</label>
+          <input type="date" id="data" />
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="tipo" onchange="carregarCategorias()">
+            <option value="receita">Receita</option>
+            <option value="fixo">Gasto Fixo</option>
+            <option value="variavel">Gasto Variável</option>
+          </select>
+        </div>
+      </div>
+      <div class="row two">
+        <div>
+          <label>Categoria</label>
+          <select id="categoria"></select>
+        </div>
+        <div class="inline">
+          <input type="text" id="novaCategoria" placeholder="Nova categoria" />
+          <button style="width:auto" onclick="adicionarCategoria()">+ Incluir</button>
+        </div>
+      </div>
+      <label>Descrição</label>
+      <textarea id="descricao" placeholder="Detalhe opcional"></textarea>
+      <label>Valor</label>
+      <input type="number" id="valor" inputmode="decimal" step="0.01" placeholder="0,00" />
+      <button style="margin-top:14px" onclick="salvar()">Salvar lançamento</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div id="view-consultar" class="card" style="display:none">
+      <h1>Consulta de Período</h1>
+      <div class="row two">
+        <div>
+          <label>Data inicial</label>
+          <input type="date" id="inicio" />
+        </div>
+        <div>
+          <label>Data final</label>
+          <input type="date" id="fim" />
+        </div>
+      </div>
+      <button style="margin-top:14px" onclick="consultar()">Consultar</button>
+      <div id="resultado" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <script>
+    let configuracoes = { receitas: [], fixos: [], variaveis: [] };
+
+    function init() {
+      const hoje = new Date();
+      document.getElementById('data').valueAsDate = hoje;
+      document.getElementById('inicio').valueAsDate = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      document.getElementById('fim').valueAsDate = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+      carregarConfiguracoes();
+    }
+
+    function mudarTab(tab) {
+      document.getElementById('tab-lancar').classList.toggle('active', tab === 'lancar');
+      document.getElementById('tab-consultar').classList.toggle('active', tab === 'consultar');
+      document.getElementById('view-lancar').style.display = tab === 'lancar' ? 'block' : 'none';
+      document.getElementById('view-consultar').style.display = tab === 'consultar' ? 'block' : 'none';
+    }
+
+    function carregarConfiguracoes() {
+      google.script.run.withSuccessHandler((data) => {
+        configuracoes = data || configuracoes;
+        carregarCategorias();
+      }).obterConfiguracoes();
+    }
+
+    function carregarCategorias() {
+      const tipo = document.getElementById('tipo').value;
+      const select = document.getElementById('categoria');
+      const lista = tipo === 'receita' ? configuracoes.receitas : tipo === 'fixo' ? configuracoes.fixos : configuracoes.variaveis;
+      select.innerHTML = '';
+      lista.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        select.appendChild(opt);
+      });
+    }
+
+    function adicionarCategoria() {
+      const tipo = document.getElementById('tipo').value;
+      const nome = document.getElementById('novaCategoria').value.trim();
+      if (!nome) return;
+      google.script.run.withSuccessHandler((listaAtualizada) => {
+        configuracoes[tipo === 'receita' ? 'receitas' : tipo === 'fixo' ? 'fixos' : 'variaveis'] = listaAtualizada;
+        document.getElementById('novaCategoria').value = '';
+        carregarCategorias();
+      }).withFailureHandler(mostrarErro).adicionarCategoria(tipo, nome);
+    }
+
+    function salvar() {
+      const lancamento = {
+        data: document.getElementById('data').value,
+        tipo: document.getElementById('tipo').value,
+        categoria: document.getElementById('categoria').value,
+        descricao: document.getElementById('descricao').value,
+        valor: document.getElementById('valor').value
+      };
+      if (!lancamento.categoria || !lancamento.valor) {
+        return mostrarStatus('Informe categoria e valor.', true);
+      }
+      google.script.run.withSuccessHandler(() => {
+        mostrarStatus('Lançamento registrado com sucesso!');
+        document.getElementById('descricao').value = '';
+        document.getElementById('valor').value = '';
+      }).withFailureHandler(mostrarErro).registrarLancamento(lancamento);
+    }
+
+    function consultar() {
+      const inicio = document.getElementById('inicio').value;
+      const fim = document.getElementById('fim').value;
+      google.script.run.withSuccessHandler(renderizarResultado).withFailureHandler(mostrarErro).consultarFluxo(inicio, fim);
+    }
+
+    function renderizarResultado(fluxo) {
+      const container = document.getElementById('resultado');
+      if (!fluxo) {
+        container.innerHTML = '<p class="status">Nenhum dado encontrado.</p>';
+        return;
+      }
+      const secao = (titulo, dados) => {
+        const chips = Object.keys(dados).map(k => `<div class="chip">${k}: <strong>R$ ${dados[k].toFixed(2)}</strong></div>`).join('');
+        return `<div><div class="pill">${titulo}</div><div class="chips">${chips || '<span class="status">Sem lançamentos</span>'}</div></div>`;
+      };
+      container.innerHTML = `
+        ${secao('Receitas', fluxo.receitas)}
+        ${secao('Gastos Fixos', fluxo.fixos)}
+        ${secao('Gastos Variáveis', fluxo.variaveis)}
+        <div class="totais">
+          <div class="card-mini">
+            <div>Resultado do período</div>
+            <div class="valor">R$ ${fluxo.total.toFixed(2)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function mostrarStatus(msg, erro = false) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = `status ${erro ? 'error' : ''}`;
+    }
+    function mostrarErro(e) {
+      console.error(e);
+      mostrarStatus(e && e.message ? e.message : 'Erro inesperado.', true);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
