@@ -8,8 +8,8 @@ const CONFIG = {
   PLANILHA_NOME: 'Lançamentos',
   PLANILHA_CONFIG_ID: '1YG6LqlPNiLREQTRNY7h8BLfbiwNXigg0wmnFRhUWX-A',
   ABA_RECEITAS: 'Config_receitas',
-  ABA_FIXO: 'Config_fixo',
-  ABA_VARIAVEL: 'Config_variavel',
+  ABA_FIXO: 'Config_fixos',
+  ABA_VARIAVEL: 'Config_variaveis',
   TIMEZONE: 'America/Sao_Paulo',
   DIAS_EDICAO: 30
 };
@@ -28,9 +28,8 @@ function doGet() {
  */
 function abrirConsulta() {
   const html = HtmlService.createHtmlOutputFromFile('consulta')
-    .setWidth(900)
-    .setHeight(600);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Consultar Lançamentos');
+    .setTitle('Consultar Lançamentos');
+  SpreadsheetApp.getUi().showSidebar(html);
 }
 
 /**
@@ -142,9 +141,16 @@ function registrarLancamento(dados) {
     const ultimaLinha = planilha.getLastRow();
     const id = ultimaLinha > 1 ? planilha.getRange(ultimaLinha, 1).getValue() + 1 : 1;
 
-    // Obtém data/hora atual no timezone correto
-    const agora = new Date();
-    const dataHoraBrasil = Utilities.formatDate(agora, CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm:ss');
+    // Usa a data informada ou a data atual
+    let dataHoraBrasil;
+    if (dados.data && dados.hora) {
+      // Formata a data e hora informadas
+      dataHoraBrasil = dados.data + ' ' + dados.hora;
+    } else {
+      // Obtém data/hora atual no timezone correto
+      const agora = new Date();
+      dataHoraBrasil = Utilities.formatDate(agora, CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm:ss');
+    }
 
     // Converte valor para número
     const valor = parseFloat(dados.valor);
