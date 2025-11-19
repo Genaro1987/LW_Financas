@@ -533,9 +533,108 @@
         font-size: 16px !important;
       }
     }
+
+    /* Notificações customizadas */
+    .notification-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .notification {
+      background: #000000;
+      color: #FFD700;
+      padding: 16px 20px;
+      border-radius: 8px;
+      border: 2px solid #FFD700;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: slideInRight 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+
+    .notification.error {
+      background: #CC0000;
+      color: #FFFFFF;
+      border-color: #990000;
+    }
+
+    .notification.success {
+      background: #FFD700;
+      color: #000000;
+      border-color: #000000;
+    }
+
+    .notification.warning {
+      background: #FF8C00;
+      color: #FFFFFF;
+      border-color: #FF6500;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 10px;
+      font-weight: bold;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .notification-close:hover {
+      opacity: 1;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    .notification.closing {
+      animation: slideOutRight 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .notification-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        width: auto;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Container para notificações -->
+  <div class="notification-container" id="notificationContainer"></div>
+
   <div class="container">
     <div class="header">
       <h1>LW Finanças</h1>
@@ -762,6 +861,42 @@
       inicializarMascaraMoeda();
     });
 
+    // Sistema de notificações customizadas
+    function mostrarNotificacao(mensagem, tipo = 'info', duracao = 5000) {
+      const container = document.getElementById('notificationContainer');
+
+      const notification = document.createElement('div');
+      notification.className = 'notification ' + tipo;
+
+      const mensagemSpan = document.createElement('span');
+      mensagemSpan.textContent = mensagem;
+
+      const btnClose = document.createElement('button');
+      btnClose.className = 'notification-close';
+      btnClose.innerHTML = '×';
+      btnClose.onclick = function() {
+        fecharNotificacao(notification);
+      };
+
+      notification.appendChild(mensagemSpan);
+      notification.appendChild(btnClose);
+      container.appendChild(notification);
+
+      // Auto-fechar após duração
+      setTimeout(function() {
+        fecharNotificacao(notification);
+      }, duracao);
+    }
+
+    function fecharNotificacao(notification) {
+      notification.classList.add('closing');
+      setTimeout(function() {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }
+
     function inicializarData() {
       const agora = new Date();
       const ano = agora.getFullYear();
@@ -909,7 +1044,7 @@
       const nomeCategoria = document.getElementById('novaCategoriaNome').value.trim();
 
       if (!nomeCategoria) {
-        alert('Por favor, informe o nome da categoria!');
+        mostrarNotificacao('Por favor, informe o nome da categoria!', 'warning');
         return;
       }
 
@@ -925,6 +1060,7 @@
           if (resultado.sucesso) {
             fecharModal();
             mostrarAlerta(resultado.mensagem, 'success', 'lancamento');
+            mostrarNotificacao('Categoria adicionada com sucesso!', 'success');
 
             // Limpa cache e recarrega
             delete cacheCategorias[tipoAtual];
@@ -940,13 +1076,13 @@
               })
               .obterCategorias(tipoAtual);
           } else {
-            alert(resultado.mensagem);
+            mostrarNotificacao(resultado.mensagem, 'error');
           }
         })
         .withFailureHandler(function(erro) {
           btnConfirm.disabled = false;
           btnConfirm.textContent = 'Adicionar';
-          alert('Erro ao adicionar categoria: ' + erro);
+          mostrarNotificacao('Erro ao adicionar categoria: ' + erro, 'error');
         })
         .adicionarCategoria(tipoAtual, nomeCategoria);
     }
@@ -1258,7 +1394,7 @@
       const observacao = document.getElementById('editObservacao').value;
 
       if (!tipo || !categoria || !valor) {
-        alert('Por favor, preencha todos os campos obrigatórios!');
+        mostrarNotificacao('Por favor, preencha todos os campos obrigatórios!', 'warning');
         return;
       }
 
@@ -1279,17 +1415,17 @@
           btnSave.textContent = 'Salvar';
 
           if (resultado.sucesso) {
-            alert(resultado.mensagem);
+            mostrarNotificacao('Lançamento atualizado com sucesso!', 'success');
             fecharModalEdicao();
             carregarDados();
           } else {
-            alert(resultado.mensagem);
+            mostrarNotificacao(resultado.mensagem, 'error');
           }
         })
         .withFailureHandler(function(erro) {
           btnSave.disabled = false;
           btnSave.textContent = 'Salvar';
-          alert('Erro ao salvar: ' + erro);
+          mostrarNotificacao('Erro ao salvar: ' + erro, 'error');
         })
         .editarLancamento(id, dados);
     }
