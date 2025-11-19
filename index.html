@@ -776,18 +776,22 @@
         // Remove tudo exceto números
         valor = valor.replace(/\D/g, '');
 
+        // Se vazio, define como 0
+        if (!valor || valor === '') {
+          valor = '0';
+        }
+
         // Converte para formato decimal
-        valor = (parseInt(valor) / 100).toFixed(2);
+        const valorNumerico = (parseInt(valor) / 100).toFixed(2);
 
         // Formata como moeda brasileira
-        valor = valor.replace('.', ',');
-        valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        let valorFormatado = valorNumerico.replace('.', ',');
+        valorFormatado = valorFormatado.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
         // Atualiza campo visível
-        e.target.value = 'R$ ' + valor;
+        e.target.value = 'R$ ' + valorFormatado;
 
         // Guarda valor numérico no campo hidden
-        const valorNumerico = e.target.value.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
         document.getElementById('valorNumerico').value = valorNumerico;
       });
 
@@ -795,6 +799,13 @@
         // Permite apenas números
         if (e.key && !/\d/.test(e.key)) {
           e.preventDefault();
+        }
+      });
+
+      campoValor.addEventListener('focus', function(e) {
+        if (e.target.value === '' || e.target.value === 'R$ 0,00') {
+          e.target.value = '';
+          document.getElementById('valorNumerico').value = '';
         }
       });
     }
@@ -1017,107 +1028,159 @@
     }
 
     function carregarDados() {
-      document.getElementById('loading-consulta').style.display = 'block';
-      document.getElementById('conteudo-consulta').style.display = 'none';
+      try {
+        document.getElementById('loading-consulta').style.display = 'block';
+        document.getElementById('conteudo-consulta').style.display = 'none';
 
-      const filtroTipo = document.getElementById('filtroTipo').value;
-      const dataInicioInput = document.getElementById('dataInicio').value;
-      const dataFimInput = document.getElementById('dataFim').value;
+        const filtroTipo = document.getElementById('filtroTipo').value;
+        const dataInicioInput = document.getElementById('dataInicio').value;
+        const dataFimInput = document.getElementById('dataFim').value;
 
-      // Converte datas para formato brasileiro
-      let dataInicio = null;
-      let dataFim = null;
+        // Converte datas para formato brasileiro
+        let dataInicio = null;
+        let dataFim = null;
 
-      if (dataInicioInput) {
-        const partes = dataInicioInput.split('-');
-        dataInicio = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        if (dataInicioInput) {
+          const partes = dataInicioInput.split('-');
+          dataInicio = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        if (dataFimInput) {
+          const partes = dataFimInput.split('-');
+          dataFim = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        // UMA ÚNICA CHAMADA - retorna lançamentos E resumo juntos
+        google.script.run
+          .withSuccessHandler(function(resultado) {
+            try {
+              if (!resultado) {
+                throw new Error('Nenhum resultado retornado');
+              }
+
+              lancamentos = resultado.lancamentos || [];
+              renderizarTabela();
+
+              if (resultado.resumo) {
+                atualizarResumo(resultado.resumo);
+              }
+
+              document.getElementById('loading-consulta').style.display = 'none';
+              document.getElementById('conteudo-consulta').style.display = 'block';
+            } catch (e) {
+              console.error('Erro ao processar resultado:', e);
+              document.getElementById('loading-consulta').innerHTML =
+                '<p style="color: #CC0000; padding: 20px;">Erro ao processar dados: ' + e.message + '</p>';
+            }
+          })
+          .withFailureHandler(function(erro) {
+            console.error('Erro ao carregar dados:', erro);
+            document.getElementById('loading-consulta').innerHTML =
+              '<p style="color: #CC0000; padding: 20px;">Erro ao carregar dados: ' + erro.message + '</p>' +
+              '<button class="btn btn-primary" onclick="carregarDados()">Tentar Novamente</button>';
+          })
+          .obterDadosConsulta(
+            filtroTipo === 'Todos' ? null : filtroTipo,
+            dataInicio,
+            dataFim
+          );
+      } catch (e) {
+        console.error('Erro crítico:', e);
+        document.getElementById('loading-consulta').innerHTML =
+          '<p style="color: #CC0000; padding: 20px;">Erro crítico: ' + e.message + '</p>';
       }
-
-      if (dataFimInput) {
-        const partes = dataFimInput.split('-');
-        dataFim = `${partes[2]}/${partes[1]}/${partes[0]}`;
-      }
-
-      // UMA ÚNICA CHAMADA - retorna lançamentos E resumo juntos
-      google.script.run
-        .withSuccessHandler(function(resultado) {
-          lancamentos = resultado.lancamentos;
-          renderizarTabela();
-          atualizarResumo(resultado.resumo);
-          document.getElementById('loading-consulta').style.display = 'none';
-          document.getElementById('conteudo-consulta').style.display = 'block';
-        })
-        .withFailureHandler(function(erro) {
-          console.error('Erro ao carregar dados:', erro);
-          document.getElementById('loading-consulta').innerHTML = '<p style="color: #CC0000;">Erro ao carregar dados: ' + erro + '</p>';
-        })
-        .obterDadosConsulta(
-          filtroTipo === 'Todos' ? null : filtroTipo,
-          dataInicio,
-          dataFim
-        );
     }
 
     function renderizarTabela() {
-      const tbody = document.getElementById('corpoTabela');
-      tbody.innerHTML = '';
+      try {
+        const tbody = document.getElementById('corpoTabela');
+        tbody.innerHTML = '';
 
-      if (lancamentos.length === 0) {
-        document.getElementById('emptyState').style.display = 'block';
-        document.getElementById('tabelaLancamentos').style.display = 'none';
-        return;
+        if (!lancamentos || lancamentos.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+          document.getElementById('tabelaLancamentos').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('tabelaLancamentos').style.display = 'table';
+
+        lancamentos.forEach(function(lanc) {
+          try {
+            const tr = document.createElement('tr');
+
+            let badgeClass = 'badge-receita';
+            if (lanc.tipo === 'Gasto Fixo') badgeClass = 'badge-gasto-fixo';
+            if (lanc.tipo === 'Gasto Variável') badgeClass = 'badge-gasto-variavel';
+
+            const valorFormatado = formatarMoeda(lanc.valor);
+            const valorClass = lanc.tipo === 'Receita' ? 'valor-positivo' : 'valor-negativo';
+
+            // Pega só a data (sem hora)
+            const data = lanc.dataHora ? lanc.dataHora.split(' ')[0] : '';
+
+            const btnEditar = lanc.podeEditar
+              ? '<button class="btn-editar" onclick="abrirModalEdicao(' + lanc.id + ')">Editar</button>'
+              : '<button class="btn-editar" disabled title="Lançamento com mais de 30 dias">Bloqueado</button>';
+
+            tr.innerHTML =
+              '<td>' + lanc.id + '</td>' +
+              '<td>' + data + '</td>' +
+              '<td><span class="badge ' + badgeClass + '">' + lanc.tipo + '</span></td>' +
+              '<td>' + lanc.categoria + '</td>' +
+              '<td class="' + valorClass + '">' + valorFormatado + '</td>' +
+              '<td>' + (lanc.observacao || '-') + '</td>' +
+              '<td>' + btnEditar + '</td>';
+
+            tbody.appendChild(tr);
+          } catch (e) {
+            console.error('Erro ao renderizar linha:', e, lanc);
+          }
+        });
+      } catch (e) {
+        console.error('Erro ao renderizar tabela:', e);
       }
-
-      document.getElementById('emptyState').style.display = 'none';
-      document.getElementById('tabelaLancamentos').style.display = 'table';
-
-      lancamentos.forEach(function(lanc) {
-        const tr = document.createElement('tr');
-
-        let badgeClass = 'badge-receita';
-        if (lanc.tipo === 'Gasto Fixo') badgeClass = 'badge-gasto-fixo';
-        if (lanc.tipo === 'Gasto Variável') badgeClass = 'badge-gasto-variavel';
-
-        const valorFormatado = formatarMoeda(lanc.valor);
-        const valorClass = lanc.tipo === 'Receita' ? 'valor-positivo' : 'valor-negativo';
-
-        // Pega só a data (sem hora)
-        const data = lanc.dataHora.split(' ')[0];
-
-        const btnEditar = lanc.podeEditar
-          ? `<button class="btn-editar" onclick="abrirModalEdicao(${lanc.id})">Editar</button>`
-          : `<button class="btn-editar" disabled title="Lançamento com mais de 30 dias">Bloqueado</button>`;
-
-        tr.innerHTML = `
-          <td>${lanc.id}</td>
-          <td>${data}</td>
-          <td><span class="badge ${badgeClass}">${lanc.tipo}</span></td>
-          <td>${lanc.categoria}</td>
-          <td class="${valorClass}">${valorFormatado}</td>
-          <td>${lanc.observacao || '-'}</td>
-          <td>${btnEditar}</td>
-        `;
-
-        tbody.appendChild(tr);
-      });
     }
 
     function atualizarResumo(resumo) {
-      document.getElementById('totalReceitas').textContent = formatarMoeda(resumo.receitas);
-      document.getElementById('totalGastosFixos').textContent = formatarMoeda(resumo.gastosFixos);
-      document.getElementById('totalGastosVariaveis').textContent = formatarMoeda(resumo.gastosVariaveis);
-      document.getElementById('saldoValor').textContent = formatarMoeda(resumo.saldo);
+      try {
+        if (!resumo) {
+          console.error('Resumo vazio');
+          return;
+        }
 
-      const saldoItem = document.getElementById('saldoItem');
-      if (resumo.saldo < 0) {
-        saldoItem.classList.add('negativo');
-      } else {
-        saldoItem.classList.remove('negativo');
+        const receitas = parseFloat(resumo.receitas) || 0;
+        const gastosFixos = parseFloat(resumo.gastosFixos) || 0;
+        const gastosVariaveis = parseFloat(resumo.gastosVariaveis) || 0;
+        const saldo = parseFloat(resumo.saldo) || 0;
+
+        document.getElementById('totalReceitas').textContent = formatarMoeda(receitas);
+        document.getElementById('totalGastosFixos').textContent = formatarMoeda(gastosFixos);
+        document.getElementById('totalGastosVariaveis').textContent = formatarMoeda(gastosVariaveis);
+        document.getElementById('saldoValor').textContent = formatarMoeda(saldo);
+
+        const saldoItem = document.getElementById('saldoItem');
+        if (saldo < 0) {
+          saldoItem.classList.add('negativo');
+        } else {
+          saldoItem.classList.remove('negativo');
+        }
+      } catch (e) {
+        console.error('Erro ao atualizar resumo:', e);
       }
     }
 
     function formatarMoeda(valor) {
-      return 'R$ ' + parseFloat(valor).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      try {
+        const numero = parseFloat(valor);
+        if (isNaN(numero)) {
+          return 'R$ 0,00';
+        }
+        return 'R$ ' + numero.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      } catch (e) {
+        console.error('Erro ao formatar moeda:', e);
+        return 'R$ 0,00';
+      }
     }
 
     function abrirModalEdicao(id) {

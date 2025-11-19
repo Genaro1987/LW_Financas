@@ -183,10 +183,18 @@ function registrarLancamento(dados) {
  * Obtém todos os lançamentos com filtros opcionais (OTIMIZADO)
  * Retorna lançamentos E resumo em uma única chamada
  */
-function obterDadosConsulta(filtroTipo = null, dataInicio = null, dataFim = null) {
+function obterDadosConsulta(filtroTipo, dataInicio, dataFim) {
   try {
+    Logger.log('Iniciando obterDadosConsulta com filtros - Tipo: ' + filtroTipo + ', DataInicio: ' + dataInicio + ', DataFim: ' + dataFim);
+
     const planilha = obterPlanilhaLancamentos();
+
+    if (!planilha) {
+      throw new Error('Planilha de lançamentos não encontrada');
+    }
+
     const dados = planilha.getDataRange().getValues();
+    Logger.log('Total de linhas encontradas: ' + dados.length);
 
     if (dados.length <= 1) {
       return {
@@ -208,14 +216,24 @@ function obterDadosConsulta(filtroTipo = null, dataInicio = null, dataFim = null
     let dataInicioObj = null;
     let dataFimObj = null;
 
-    if (dataInicio) {
-      const partesInicio = dataInicio.split('/');
-      dataInicioObj = new Date(partesInicio[2], partesInicio[1] - 1, partesInicio[0], 0, 0, 0);
+    if (dataInicio && dataInicio.trim() !== '') {
+      try {
+        const partesInicio = dataInicio.split('/');
+        dataInicioObj = new Date(partesInicio[2], partesInicio[1] - 1, partesInicio[0], 0, 0, 0);
+        Logger.log('Data início convertida: ' + dataInicioObj);
+      } catch (e) {
+        Logger.log('Erro ao converter data início: ' + e.toString());
+      }
     }
 
-    if (dataFim) {
-      const partesFim = dataFim.split('/');
-      dataFimObj = new Date(partesFim[2], partesFim[1] - 1, partesFim[0], 23, 59, 59);
+    if (dataFim && dataFim.trim() !== '') {
+      try {
+        const partesFim = dataFim.split('/');
+        dataFimObj = new Date(partesFim[2], partesFim[1] - 1, partesFim[0], 23, 59, 59);
+        Logger.log('Data fim convertida: ' + dataFimObj);
+      } catch (e) {
+        Logger.log('Erro ao converter data fim: ' + e.toString());
+      }
     }
 
     // Variáveis para cálculo do resumo
@@ -224,51 +242,56 @@ function obterDadosConsulta(filtroTipo = null, dataInicio = null, dataFim = null
     let totalGastosVariaveis = 0;
 
     for (let i = 1; i < dados.length; i++) {
-      const tipo = dados[i][2];
-      const dataLancamento = parseDataBrasileira(dados[i][1]);
-      const valor = parseFloat(dados[i][4]) || 0;
+      try {
+        const tipo = dados[i][2];
+        const dataLancamento = parseDataBrasileira(dados[i][1]);
+        const valor = parseFloat(dados[i][4]) || 0;
 
-      // Aplica filtro de data
-      if (dataInicioObj && dataLancamento < dataInicioObj) continue;
-      if (dataFimObj && dataLancamento > dataFimObj) continue;
+        // Aplica filtro de data
+        if (dataInicioObj && dataLancamento < dataInicioObj) continue;
+        if (dataFimObj && dataLancamento > dataFimObj) continue;
 
-      // Calcula resumo (sem filtro de tipo)
-      if (tipo === 'Receita') {
-        totalReceitas += valor;
-      } else if (tipo === 'Gasto Fixo') {
-        totalGastosFixos += valor;
-      } else if (tipo === 'Gasto Variável') {
-        totalGastosVariaveis += valor;
+        // Calcula resumo (sem filtro de tipo)
+        if (tipo === 'Receita') {
+          totalReceitas += valor;
+        } else if (tipo === 'Gasto Fixo') {
+          totalGastosFixos += valor;
+        } else if (tipo === 'Gasto Variável') {
+          totalGastosVariaveis += valor;
+        }
+
+        // Aplica filtro de tipo para lançamentos
+        if (filtroTipo && filtroTipo !== 'Todos' && tipo !== filtroTipo) {
+          continue;
+        }
+
+        // Calcula se pode editar (até 30 dias)
+        const diasDiferenca = Math.floor((agora - dataLancamento) / (1000 * 60 * 60 * 24));
+        const podeEditar = diasDiferenca <= CONFIG.DIAS_EDICAO;
+
+        lancamentos.push({
+          id: dados[i][0],
+          dataHora: dados[i][1] ? dados[i][1].toString() : '',
+          tipo: tipo,
+          categoria: dados[i][3],
+          valor: dados[i][4],
+          observacao: dados[i][5] || '',
+          podeEditar: podeEditar,
+          diasAtras: diasDiferenca
+        });
+      } catch (e) {
+        Logger.log('Erro ao processar linha ' + i + ': ' + e.toString());
+        // Continua processando as outras linhas
       }
-
-      // Aplica filtro de tipo para lançamentos
-      if (filtroTipo && filtroTipo !== 'Todos' && tipo !== filtroTipo) {
-        continue;
-      }
-
-      // Calcula se pode editar (até 30 dias)
-      const diasDiferenca = Math.floor((agora - dataLancamento) / (1000 * 60 * 60 * 24));
-      const podeEditar = diasDiferenca <= CONFIG.DIAS_EDICAO;
-
-      lancamentos.push({
-        id: dados[i][0],
-        dataHora: dados[i][1],
-        tipo: tipo,
-        categoria: dados[i][3],
-        valor: dados[i][4],
-        observacao: dados[i][5] || '',
-        podeEditar: podeEditar,
-        diasAtras: diasDiferenca
-      });
     }
 
     // Ordena por ID decrescente (mais recente primeiro)
-    lancamentos.sort((a, b) => b.id - a.id);
+    lancamentos.sort(function(a, b) { return b.id - a.id; });
 
     const totalGastos = totalGastosFixos + totalGastosVariaveis;
     const saldo = totalReceitas - totalGastos;
 
-    return {
+    const resultado = {
       lancamentos: lancamentos,
       resumo: {
         receitas: totalReceitas,
@@ -278,8 +301,15 @@ function obterDadosConsulta(filtroTipo = null, dataInicio = null, dataFim = null
         saldo: saldo
       }
     };
+
+    Logger.log('Retornando ' + lancamentos.length + ' lançamentos');
+    return resultado;
+
   } catch (e) {
-    Logger.log('Erro ao obter dados da consulta: ' + e.toString());
+    Logger.log('ERRO CRÍTICO ao obter dados da consulta: ' + e.toString());
+    Logger.log('Stack trace: ' + e.stack);
+
+    // Retorna estrutura vazia em caso de erro
     return {
       lancamentos: [],
       resumo: {
@@ -296,7 +326,7 @@ function obterDadosConsulta(filtroTipo = null, dataInicio = null, dataFim = null
 /**
  * MANTÉM FUNÇÃO ANTIGA PARA COMPATIBILIDADE (mas não deve ser usada)
  */
-function obterLancamentos(filtroTipo = null) {
+function obterLancamentos(filtroTipo) {
   const resultado = obterDadosConsulta(filtroTipo, null, null);
   return resultado.lancamentos;
 }
