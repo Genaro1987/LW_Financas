@@ -269,9 +269,21 @@ function obterDadosConsulta(filtroTipo, dataInicio, dataFim) {
         const diasDiferenca = Math.floor((agora - dataLancamento) / (1000 * 60 * 60 * 24));
         const podeEditar = diasDiferenca <= CONFIG.DIAS_EDICAO;
 
+        // Formata data corretamente
+        let dataHoraFormatada = '';
+        if (dados[i][1]) {
+          if (typeof dados[i][1] === 'object' && dados[i][1] instanceof Date) {
+            // Se for objeto Date, formata manualmente
+            dataHoraFormatada = Utilities.formatDate(dados[i][1], CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm:ss');
+          } else {
+            // Se já for string, usa diretamente
+            dataHoraFormatada = dados[i][1].toString();
+          }
+        }
+
         lancamentos.push({
           id: dados[i][0],
-          dataHora: dados[i][1] ? dados[i][1].toString() : '',
+          dataHora: dataHoraFormatada,
           tipo: tipo,
           categoria: dados[i][3],
           valor: dados[i][4],
