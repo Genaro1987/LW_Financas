@@ -180,30 +180,73 @@ function registrarLancamento(dados) {
 }
 
 /**
- * Obtém todos os lançamentos com filtro opcional
+ * Obtém todos os lançamentos com filtros opcionais (OTIMIZADO)
+ * Retorna lançamentos E resumo em uma única chamada
  */
-function obterLancamentos(filtroTipo = null) {
+function obterDadosConsulta(filtroTipo = null, dataInicio = null, dataFim = null) {
   try {
     const planilha = obterPlanilhaLancamentos();
     const dados = planilha.getDataRange().getValues();
 
     if (dados.length <= 1) {
-      return [];
+      return {
+        lancamentos: [],
+        resumo: {
+          receitas: 0,
+          gastosFixos: 0,
+          gastosVariaveis: 0,
+          totalGastos: 0,
+          saldo: 0
+        }
+      };
     }
 
     const lancamentos = [];
     const agora = new Date();
 
+    // Converte datas de filtro se fornecidas
+    let dataInicioObj = null;
+    let dataFimObj = null;
+
+    if (dataInicio) {
+      const partesInicio = dataInicio.split('/');
+      dataInicioObj = new Date(partesInicio[2], partesInicio[1] - 1, partesInicio[0], 0, 0, 0);
+    }
+
+    if (dataFim) {
+      const partesFim = dataFim.split('/');
+      dataFimObj = new Date(partesFim[2], partesFim[1] - 1, partesFim[0], 23, 59, 59);
+    }
+
+    // Variáveis para cálculo do resumo
+    let totalReceitas = 0;
+    let totalGastosFixos = 0;
+    let totalGastosVariaveis = 0;
+
     for (let i = 1; i < dados.length; i++) {
       const tipo = dados[i][2];
+      const dataLancamento = parseDataBrasileira(dados[i][1]);
+      const valor = parseFloat(dados[i][4]) || 0;
 
-      // Aplica filtro se especificado
+      // Aplica filtro de data
+      if (dataInicioObj && dataLancamento < dataInicioObj) continue;
+      if (dataFimObj && dataLancamento > dataFimObj) continue;
+
+      // Calcula resumo (sem filtro de tipo)
+      if (tipo === 'Receita') {
+        totalReceitas += valor;
+      } else if (tipo === 'Gasto Fixo') {
+        totalGastosFixos += valor;
+      } else if (tipo === 'Gasto Variável') {
+        totalGastosVariaveis += valor;
+      }
+
+      // Aplica filtro de tipo para lançamentos
       if (filtroTipo && filtroTipo !== 'Todos' && tipo !== filtroTipo) {
         continue;
       }
 
       // Calcula se pode editar (até 30 dias)
-      const dataLancamento = parseDataBrasileira(dados[i][1]);
       const diasDiferenca = Math.floor((agora - dataLancamento) / (1000 * 60 * 60 * 24));
       const podeEditar = diasDiferenca <= CONFIG.DIAS_EDICAO;
 
@@ -222,11 +265,40 @@ function obterLancamentos(filtroTipo = null) {
     // Ordena por ID decrescente (mais recente primeiro)
     lancamentos.sort((a, b) => b.id - a.id);
 
-    return lancamentos;
+    const totalGastos = totalGastosFixos + totalGastosVariaveis;
+    const saldo = totalReceitas - totalGastos;
+
+    return {
+      lancamentos: lancamentos,
+      resumo: {
+        receitas: totalReceitas,
+        gastosFixos: totalGastosFixos,
+        gastosVariaveis: totalGastosVariaveis,
+        totalGastos: totalGastos,
+        saldo: saldo
+      }
+    };
   } catch (e) {
-    Logger.log('Erro ao obter lançamentos: ' + e.toString());
-    return [];
+    Logger.log('Erro ao obter dados da consulta: ' + e.toString());
+    return {
+      lancamentos: [],
+      resumo: {
+        receitas: 0,
+        gastosFixos: 0,
+        gastosVariaveis: 0,
+        totalGastos: 0,
+        saldo: 0
+      }
+    };
   }
+}
+
+/**
+ * MANTÉM FUNÇÃO ANTIGA PARA COMPATIBILIDADE (mas não deve ser usada)
+ */
+function obterLancamentos(filtroTipo = null) {
+  const resultado = obterDadosConsulta(filtroTipo, null, null);
+  return resultado.lancamentos;
 }
 
 /**

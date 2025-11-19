@@ -573,7 +573,8 @@
 
         <div class="form-group">
           <label for="valor">Valor (R$) <span class="required">*</span></label>
-          <input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required inputmode="decimal">
+          <input type="text" id="valor" placeholder="R$ 0,00" required inputmode="decimal">
+          <input type="hidden" id="valorNumerico">
         </div>
 
         <div class="form-group">
@@ -622,6 +623,21 @@
           <option value="Gasto Variável">Gasto Variável</option>
         </select>
       </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="dataInicio">Data Início:</label>
+          <input type="date" id="dataInicio">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="dataFim">Data Fim:</label>
+          <input type="date" id="dataFim">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="aplicarFiltros()" style="margin-bottom: 20px;">
+        Aplicar Filtros
+      </button>
 
       <div class="tabela-container">
         <div id="loading-consulta" class="loading">
@@ -740,6 +756,7 @@
     // Inicializa ao carregar
     window.addEventListener('load', function() {
       inicializarData();
+      inicializarMascaraMoeda();
     });
 
     function inicializarData() {
@@ -748,6 +765,38 @@
       const mes = String(agora.getMonth() + 1).padStart(2, '0');
       const dia = String(agora.getDate()).padStart(2, '0');
       document.getElementById('data').value = `${ano}-${mes}-${dia}`;
+    }
+
+    function inicializarMascaraMoeda() {
+      const campoValor = document.getElementById('valor');
+
+      campoValor.addEventListener('input', function(e) {
+        let valor = e.target.value;
+
+        // Remove tudo exceto números
+        valor = valor.replace(/\D/g, '');
+
+        // Converte para formato decimal
+        valor = (parseInt(valor) / 100).toFixed(2);
+
+        // Formata como moeda brasileira
+        valor = valor.replace('.', ',');
+        valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Atualiza campo visível
+        e.target.value = 'R$ ' + valor;
+
+        // Guarda valor numérico no campo hidden
+        const valorNumerico = e.target.value.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
+        document.getElementById('valorNumerico').value = valorNumerico;
+      });
+
+      campoValor.addEventListener('keypress', function(e) {
+        // Permite apenas números
+        if (e.key && !/\d/.test(e.key)) {
+          e.preventDefault();
+        }
+      });
     }
 
     // Troca de aba
@@ -918,10 +967,10 @@
       const tipo = document.getElementById('tipo').value;
       const categoria = document.getElementById('categoria').value;
       const dataInput = document.getElementById('data').value;
-      const valor = document.getElementById('valor').value;
+      const valorNumerico = document.getElementById('valorNumerico').value;
       const observacao = document.getElementById('observacao').value;
 
-      if (!tipo || !categoria || !dataInput || !valor || categoria === '__NOVA__') {
+      if (!tipo || !categoria || !dataInput || !valorNumerico || categoria === '__NOVA__') {
         mostrarAlerta('Por favor, preencha todos os campos obrigatórios!', 'error', 'lancamento');
         return;
       }
@@ -934,7 +983,7 @@
         tipo: tipo,
         categoria: categoria,
         data: dataFormatada,
-        valor: valor,
+        valor: valorNumerico,
         observacao: observacao
       };
 
@@ -949,6 +998,7 @@
             document.getElementById('formLancamento').reset();
             document.getElementById('categoria').disabled = true;
             document.getElementById('categoria').innerHTML = '<option value="">Primeiro selecione o tipo</option>';
+            document.getElementById('valorNumerico').value = '';
             inicializarData();
           } else {
             mostrarAlerta(resultado.mensagem, 'error', 'lancamento');
@@ -961,30 +1011,51 @@
         .registrarLancamento(dados);
     }
 
-    // Filtro por tipo
-    document.getElementById('filtroTipo').addEventListener('change', function() {
+    // Aplicar filtros (OTIMIZADO - UMA ÚNICA CHAMADA)
+    function aplicarFiltros() {
       carregarDados();
-    });
+    }
 
     function carregarDados() {
       document.getElementById('loading-consulta').style.display = 'block';
       document.getElementById('conteudo-consulta').style.display = 'none';
 
-      const filtro = document.getElementById('filtroTipo').value;
+      const filtroTipo = document.getElementById('filtroTipo').value;
+      const dataInicioInput = document.getElementById('dataInicio').value;
+      const dataFimInput = document.getElementById('dataFim').value;
 
+      // Converte datas para formato brasileiro
+      let dataInicio = null;
+      let dataFim = null;
+
+      if (dataInicioInput) {
+        const partes = dataInicioInput.split('-');
+        dataInicio = `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+
+      if (dataFimInput) {
+        const partes = dataFimInput.split('-');
+        dataFim = `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+
+      // UMA ÚNICA CHAMADA - retorna lançamentos E resumo juntos
       google.script.run
-        .withSuccessHandler(function(dados) {
-          lancamentos = dados;
+        .withSuccessHandler(function(resultado) {
+          lancamentos = resultado.lancamentos;
           renderizarTabela();
-          carregarResumo();
+          atualizarResumo(resultado.resumo);
           document.getElementById('loading-consulta').style.display = 'none';
           document.getElementById('conteudo-consulta').style.display = 'block';
         })
         .withFailureHandler(function(erro) {
-          console.error('Erro ao carregar lançamentos:', erro);
+          console.error('Erro ao carregar dados:', erro);
           document.getElementById('loading-consulta').innerHTML = '<p style="color: #CC0000;">Erro ao carregar dados: ' + erro + '</p>';
         })
-        .obterLancamentos(filtro === 'Todos' ? null : filtro);
+        .obterDadosConsulta(
+          filtroTipo === 'Todos' ? null : filtroTipo,
+          dataInicio,
+          dataFim
+        );
     }
 
     function renderizarTabela() {
@@ -1031,22 +1102,18 @@
       });
     }
 
-    function carregarResumo() {
-      google.script.run
-        .withSuccessHandler(function(resumo) {
-          document.getElementById('totalReceitas').textContent = formatarMoeda(resumo.receitas);
-          document.getElementById('totalGastosFixos').textContent = formatarMoeda(resumo.gastosFixos);
-          document.getElementById('totalGastosVariaveis').textContent = formatarMoeda(resumo.gastosVariaveis);
-          document.getElementById('saldoValor').textContent = formatarMoeda(resumo.saldo);
+    function atualizarResumo(resumo) {
+      document.getElementById('totalReceitas').textContent = formatarMoeda(resumo.receitas);
+      document.getElementById('totalGastosFixos').textContent = formatarMoeda(resumo.gastosFixos);
+      document.getElementById('totalGastosVariaveis').textContent = formatarMoeda(resumo.gastosVariaveis);
+      document.getElementById('saldoValor').textContent = formatarMoeda(resumo.saldo);
 
-          const saldoItem = document.getElementById('saldoItem');
-          if (resumo.saldo < 0) {
-            saldoItem.classList.add('negativo');
-          } else {
-            saldoItem.classList.remove('negativo');
-          }
-        })
-        .obterResumo();
+      const saldoItem = document.getElementById('saldoItem');
+      if (resumo.saldo < 0) {
+        saldoItem.classList.add('negativo');
+      } else {
+        saldoItem.classList.remove('negativo');
+      }
     }
 
     function formatarMoeda(valor) {
